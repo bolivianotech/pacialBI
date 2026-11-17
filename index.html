@@ -1,0 +1,1564 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Examen Parcial Avanzado — Inteligencia de Negocios (INV-0170) · UPDS 2026</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+tailwind.config = {
+  theme: { extend: {
+    colors: { ios: { blue:'#007AFF', green:'#34C759', red:'#FF3B30', orange:'#FF9500',
+                     purple:'#AF52DE', teal:'#5AC8FA', bg:'#F2F2F7', sep:'#E5E5EA', second:'#6C6C70' } },
+    fontFamily: { sans:['-apple-system','BlinkMacSystemFont','Segoe UI','system-ui','sans-serif'] }
+  }}
+}
+</script>
+<style>
+*{-webkit-tap-highlight-color:transparent}
+body{-webkit-font-smoothing:antialiased;background:#F2F2F7}
+.card{background:#fff;border-radius:18px;box-shadow:0 2px 8px rgba(0,0,0,.07),0 0 1px rgba(0,0,0,.06)}
+.opt{border:2px solid #E5E5EA;border-radius:13px;transition:all .16s ease;cursor:pointer;user-select:none}
+.opt:hover{border-color:#C6C6C8;background:#FAFAFA}
+.opt.sel{border-color:#007AFF;background:#EBF5FF}
+.opt.ok{border-color:#34C759!important;background:#E8F8EE!important}
+.opt.fail{border-color:#FF3B30!important;background:#FFF0EE!important}
+.opt.missed{border-color:#FF9500!important;background:#FFF5E6!important}
+.opt:active{transform:scale(.98)}
+.tf{border:2px solid #E5E5EA;border-radius:13px;cursor:pointer;transition:all .16s ease;user-select:none;padding:12px;text-align:center;font-weight:600}
+.tf.sel-true{border-color:#34C759;background:#E8F8EE;color:#1A7A34}
+.tf.sel-false{border-color:#FF3B30;background:#FFF0EE;color:#C0392B}
+.tf.ok{border-color:#34C759;background:#E8F8EE}
+.tf.fail{border-color:#FF3B30;background:#FFF0EE}
+.tf:active{transform:scale(.98)}
+.chip{cursor:pointer;user-select:none;border:2px solid #007AFF;color:#007AFF;background:#EBF5FF;border-radius:10px;padding:5px 14px;font-weight:600;font-size:.875rem;transition:all .15s ease;display:inline-block}
+.chip:hover{background:#D6EBFF}
+.chip.active{background:#007AFF;color:#fff;transform:scale(1.05);box-shadow:0 4px 12px rgba(0,122,255,.3)}
+.chip.used{opacity:.3;pointer-events:none}
+.blank{display:inline-flex;align-items:center;justify-content:center;min-width:148px;height:36px;border:2px dashed #C6C6C8;border-radius:10px;background:#F9F9FB;color:#6C6C70;font-size:.875rem;font-weight:600;cursor:pointer;vertical-align:middle;margin:0 3px;transition:all .15s ease}
+.blank:hover{border-color:#007AFF;background:#EBF5FF;color:#007AFF}
+.blank.ready{border-color:#007AFF;background:#EBF5FF;color:#0055CC;border-style:solid}
+.blank.ok{border-color:#34C759;background:#E8F8EE;color:#1A7A34;border-style:solid}
+.blank.fail{border-color:#FF3B30;background:#FFF0EE;color:#C0392B;border-style:solid}
+.stab{border-radius:10px;padding:7px 14px;font-size:.78rem;font-weight:600;cursor:pointer;transition:all .15s ease;border:2px solid transparent;white-space:nowrap}
+.stab.active{color:#fff}
+.progress-track{background:#E5E5EA;border-radius:99px;height:6px}
+.progress-fill{background:#007AFF;border-radius:99px;height:6px;transition:width .5s cubic-bezier(.34,1.56,.64,1)}
+.section-in{animation:sIn .3s ease}
+@keyframes sIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+.score-ring{animation:pulse 2.4s ease-in-out infinite}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.04)}}
+.cb-box{width:20px;height:20px;border:2px solid #C6C6C8;border-radius:5px;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all .15s ease}
+.cb-box.checked{background:#007AFF;border-color:#007AFF}
+.cb-box.ok-check{background:#34C759;border-color:#34C759}
+.cb-box.fail-check{background:#FF3B30;border-color:#FF3B30}
+.cb-box.missed-check{background:#FF9500;border-color:#FF9500}
+input[type=text],input[type=email],input[type=number],input[type=datetime-local]{outline:none;transition:border-color .15s ease}
+input[type=text]:focus,input[type=email]:focus,input[type=number]:focus,input[type=datetime-local]:focus{border-color:#007AFF}
+.insights-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px}
+.insight-card{border-radius:10px;padding:12px;font-size:.85rem;line-height:1.5;border-left:4px solid;background:#f9f9fb}
+.insight-card.high{border-left-color:#FF3B30;background:#FFF0EE}
+.insight-card.high .ic-title{color:#C0392B;font-weight:700}
+.insight-card.high .ic-text{color:#6D2826;font-size:.8rem}
+.insight-card.medium{border-left-color:#FF9500;background:#FFF5E6}
+.insight-card.medium .ic-title{color:#C67000;font-weight:700}
+.insight-card.medium .ic-text{color:#6B3F00;font-size:.8rem}
+.insight-card.low{border-left-color:#34C759;background:#E8F8EE}
+.insight-card.low .ic-title{color:#1A7A34;font-weight:700}
+.insight-card.low .ic-text{color:#0D5722;font-size:.8rem}
+@media print{
+  body{background:#fff!important}
+  #app-shell,#intake-screen,#results-overlay,header,.sticky,.fixed,#bottom-nav{display:none!important}
+  #print-report{display:block!important}
+  .pr-section{page-break-before:auto}
+  .pr-q{page-break-inside:avoid;border:1px solid #e5e5ea;border-radius:10px;padding:12px;margin-bottom:10px}
+  .pr-opt{padding:5px 10px;border-radius:6px;margin-bottom:4px;font-size:.85rem}
+  .pr-ok{background:#E8F8EE;color:#1A7A34}
+  .pr-fail{background:#FFF0EE;color:#C0392B}
+  .pr-missed{background:#FFF5E6;color:#c07000}
+  .pr-neutral{color:#555}
+  .pr-just{background:#F5F5F5;border-radius:8px;padding:8px;font-size:.82rem;color:#444;margin-top:8px}
+}
+#print-report{display:none}
+</style>
+</head>
+<body class="min-h-screen">
+
+<div id="intake-screen" class="min-h-screen flex items-start justify-center py-10 px-4">
+  <div style="max-width:540px;width:100%">
+    <div class="text-center mb-6">
+      <div class="inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-white mb-3 shadow-lg shadow-blue-200 p-2 border border-ios-sep">
+        <img id="intake-logo" alt="Logo UPDS" class="w-full h-full object-contain"/>
+      </div>
+      <h1 class="text-2xl font-bold text-gray-900">Examen Parcial Avanzado</h1>
+      <p class="text-ios-second text-sm mt-1">Inteligencia de Negocios (INV-0170) · UPDS 2026</p>
+    </div>
+
+    <div class="card p-5 mb-4">
+      <div class="grid grid-cols-3 gap-3 text-center">
+        <div class="bg-blue-50 rounded-xl p-3">
+          <p class="text-xl font-bold text-ios-blue">28</p>
+          <p class="text-xs text-ios-second mt-0.5">preguntas</p>
+        </div>
+        <div class="bg-orange-50 rounded-xl p-3">
+          <p class="text-xl font-bold text-orange-500">120</p>
+          <p class="text-xs text-ios-second mt-0.5">minutos</p>
+        </div>
+        <div class="bg-green-50 rounded-xl p-3">
+          <p class="text-xl font-bold text-ios-green">4</p>
+          <p class="text-xs text-ios-second mt-0.5">bloques</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="card p-5 mb-4">
+      <h2 class="font-bold text-gray-800 mb-4">Datos del estudiante</h2>
+      <div class="space-y-3">
+        <div>
+          <label class="text-xs font-semibold text-ios-second uppercase tracking-wide block mb-1">Nombre completo *</label>
+          <input id="inp-nombre" type="text" placeholder="Ej. Ana Sofia Torres Vidal"
+            class="w-full border-2 border-ios-sep rounded-xl px-4 py-3 text-sm text-gray-800"
+            oninput="checkIntake()" onchange="checkIntake()"/>
+        </div>
+        <div>
+          <label class="text-xs font-semibold text-ios-second uppercase tracking-wide block mb-1">Codigo de estudiante *</label>
+          <input id="inp-codigo" type="text" placeholder="Ej. 2023-SIS-0042"
+            class="w-full border-2 border-ios-sep rounded-xl px-4 py-3 text-sm text-gray-800"
+            oninput="checkIntake()" onchange="checkIntake()"/>
+        </div>
+        <div>
+          <label class="text-xs font-semibold text-ios-second uppercase tracking-wide block mb-1">Correo institucional *</label>
+          <input id="inp-email" type="email" placeholder="codigo@upds.edu.bo"
+            class="w-full border-2 border-ios-sep rounded-xl px-4 py-3 text-sm text-gray-800"
+            oninput="checkIntake()" onchange="checkIntake()"/>
+          <div id="lock-banner" style="display:none" class="mt-2 rounded-xl px-3 py-2.5 text-xs leading-relaxed"></div>
+        </div>
+        <div>
+          <label class="text-xs font-semibold text-ios-second uppercase tracking-wide block mb-1">Fecha y hora de inicio</label>
+          <input id="inp-fecha" type="datetime-local"
+            class="w-full border-2 border-ios-sep rounded-xl px-4 py-3 text-sm text-gray-800 bg-white cursor-text"
+            oninput="checkIntake()" onchange="checkIntake()"/>
+        </div>
+      </div>
+    </div>
+
+    <div class="card p-5 mb-5">
+      <h2 class="font-bold text-gray-800 mb-3">Declaracion de Honestidad</h2>
+      <div class="bg-blue-50 border border-blue-200 rounded-xl p-4 mb-4 text-xs text-blue-800 leading-relaxed">
+        <p class="font-bold mb-1">Examen Parcial Avanzado — Inteligencia de Negocios (INV-0170)</p>
+        <p>Este es el <strong>Examen Parcial Avanzado</strong> de la materia Inteligencia de Negocios y evalua: las Actividades 1 y 2 y los laboratorios de la materia: arquitectura Lakehouse y modelado dimensional, calidad de datos Bronze a Silver, anonimización y reproducibilidad, y el caso de Comercial Tierra Oriental con sus cinco archivos crudos. <strong>Responde con honestidad</strong>, sin apoyo externo, para reflejar fielmente tu nivel real de dominio del contenido.</p>
+      </div>
+      <div class="bg-red-50 border-2 border-red-300 rounded-xl p-4 mb-4">
+        <p class="font-bold text-red-800 text-xs mb-1.5 flex items-center gap-1.5"><span class="text-base">&#128274;</span> Un solo intento por correo</p>
+        <p class="text-xs text-red-700 leading-relaxed">Este examen se puede rendir <strong>una unica vez por correo institucional</strong>. En cuanto entregues, tu resultado queda registrado en este navegador como <strong>nota final</strong> y no podras volver a rendirlo con el mismo correo: al reabrir el examen se te mostrara directamente esa nota, sin opcion de repetirlo.</p>
+      </div>
+      <div class="bg-orange-50 border-2 border-orange-300 rounded-xl p-4 mb-4">
+        <p class="font-bold text-orange-800 text-xs mb-1.5 flex items-center gap-1.5"><span class="text-base">&#128196;</span> La entrega debe ser en PDF</p>
+        <p class="text-xs text-orange-700 leading-relaxed">Al terminar, descarga el reporte y <strong>subelo a Moodle en formato PDF</strong> (usando "Guardar como PDF" en el cuadro de impresion). El reporte llevara tu <strong>codigo de verificacion unico</strong>. Cualquier entrega que no sea el PDF con ese codigo <strong>no sera calificada</strong>.</p>
+      </div>
+      <label class="flex items-start gap-3 cursor-pointer group">
+        <input id="inp-consent" type="checkbox" onchange="toggleConsent(this.checked)" onclick="checkIntake()"
+          class="mt-0.5 w-5 h-5 flex-shrink-0 cursor-pointer"
+          style="accent-color:#007AFF"/>
+        <p class="text-sm text-gray-700 leading-relaxed">
+          Declaro que las respuestas que proporcione en este examen final son <strong>completamente propias</strong>, basadas exclusivamente en mis conocimientos y sin apoyo externo, para que el resultado refleje fielmente mi nivel real de dominio de la materia. Entiendo que este es mi <strong>unico intento</strong> con este correo y que debo entregar el reporte en <strong>formato PDF</strong> para ser calificado.
+        </p>
+      </label>
+    </div>
+
+    <button id="btn-start" onclick="handleStartClick()" disabled
+      class="w-full py-4 rounded-2xl font-bold text-base bg-gray-200 text-gray-400 transition-all cursor-not-allowed">
+      Completar todos los campos para continuar
+    </button>
+
+    <p class="text-center text-xs text-ios-second mt-4 pb-6">
+      Universidad Privada Domingo Savio · Ingeniería de Sistemas · Inteligencia de Negocios (INV-0170)
+    </p>
+  </div>
+</div>
+
+<div id="app-shell" style="display:none">
+  <header class="sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b border-ios-sep">
+    <div class="max-w-2xl mx-auto px-4 py-3 flex items-center justify-between gap-3">
+      <img id="hd-logo" alt="Logo UPDS" class="w-9 h-9 rounded-lg object-contain flex-shrink-0 border border-ios-sep bg-white p-0.5"/>
+      <div class="flex-1 min-w-0">
+        <p class="text-xs text-ios-second font-medium" id="hd-student">—</p>
+        <h1 class="text-sm font-bold text-gray-900 truncate">Examen Parcial Avanzado — Inteligencia de Negocios</h1>
+      </div>
+      <div class="text-right shrink-0">
+        <p class="text-xs text-ios-second">Tiempo</p>
+        <p id="timer" class="text-lg font-bold text-gray-800 tabular-nums">120:00</p>
+      </div>
+    </div>
+    <div class="max-w-2xl mx-auto px-4 pb-3">
+      <div class="flex justify-between text-xs text-ios-second mb-1">
+        <span id="prog-label">Bloque 1 de 4</span>
+        <span id="prog-pct">0 / 28</span>
+      </div>
+      <div class="progress-track"><div class="progress-fill" id="progress-bar" style="width:0%"></div></div>
+    </div>
+  </header>
+
+  <div class="sticky top-[92px] z-40 bg-ios-bg/95 backdrop-blur-sm py-2 border-b border-ios-sep">
+    <div class="max-w-2xl mx-auto px-3 flex gap-2 overflow-x-auto pb-0.5" style="scrollbar-width:none">
+      <button class="stab" id="tab-0" onclick="goSection(0)">— 1</button>
+      <button class="stab" id="tab-1" onclick="goSection(1)">— 2</button>
+      <button class="stab" id="tab-2" onclick="goSection(2)">— 3</button>
+      <button class="stab" id="tab-3" onclick="goSection(3)">— 4</button>
+    </div>
+  </div>
+
+  <main class="max-w-2xl mx-auto px-4 py-5 pb-32" id="main-content"></main>
+
+  <div id="bottom-nav" class="fixed bottom-0 inset-x-0 bg-white/90 backdrop-blur-md border-t border-ios-sep z-50">
+    <div class="max-w-2xl mx-auto px-4 py-3 flex gap-3">
+      <button id="btn-prev" onclick="prevSection()" class="flex-1 py-3 rounded-2xl font-semibold text-sm border-2 border-ios-sep text-ios-second hover:bg-gray-50 transition-all">← Anterior</button>
+      <button id="btn-next" onclick="nextSection()" class="flex-1 py-3 rounded-2xl font-semibold text-sm bg-ios-blue text-white hover:bg-blue-600 transition-all active:scale-95 shadow-md shadow-blue-200">Siguiente →</button>
+      <button id="btn-submit" onclick="confirmSubmit()" style="display:none" class="flex-1 py-3 rounded-2xl font-semibold text-sm bg-ios-green text-white hover:bg-green-600 transition-all active:scale-95 shadow-md shadow-green-200">Entregar Actividad</button>
+    </div>
+  </div>
+</div>
+
+<div id="results-overlay" style="display:none" class="fixed inset-0 z-[100] bg-ios-bg overflow-y-auto">
+  <div class="max-w-2xl mx-auto px-4 py-8">
+
+    <div id="annul-banner" style="display:none" class="card p-5 border-2 border-red-400 bg-red-50 mb-4"></div>
+
+    <div class="card p-7 text-center mb-4">
+      <p class="text-xs font-semibold tracking-widest text-ios-second uppercase mb-3">Resultado del Examen Parcial Avanzado</p>
+      <div class="score-ring w-36 h-36 rounded-full mx-auto mb-4 flex flex-col items-center justify-center border-8" id="score-ring">
+        <span class="text-4xl font-bold" id="score-num">--</span>
+        <span class="text-sm text-ios-second">/28</span>
+      </div>
+      <p class="text-2xl font-bold mb-1" id="score-label">--</p>
+      <p class="text-ios-second text-sm mb-3" id="score-sub">--</p>
+      <div class="bg-gray-50 rounded-xl p-3 grid grid-cols-3 gap-2 text-sm">
+        <div><p class="text-xs text-ios-second">Estudiante</p><p class="font-semibold text-gray-800 truncate" id="res-nombre">--</p></div>
+        <div><p class="text-xs text-ios-second">Codigo</p><p class="font-semibold text-gray-800" id="res-codigo">--</p></div>
+        <div><p class="text-xs text-ios-second">Nivel</p><p class="font-semibold" id="res-grade">--</p></div>
+      </div>
+      <div class="mt-3 bg-blue-50 border border-blue-200 rounded-xl p-3">
+        <p class="text-xs text-ios-second">Codigo de verificacion (debe coincidir con el PDF entregado)</p>
+        <p class="font-bold text-ios-blue tracking-wide text-sm" id="res-veriCode">--</p>
+      </div>
+    </div>
+
+    <div class="card p-5 mb-4">
+      <h2 class="font-bold text-gray-800 mb-3">Resultado por seccion</h2>
+      <div id="breakdown" class="space-y-3"></div>
+    </div>
+
+    <div class="card p-5 mb-4">
+      <h2 class="font-bold text-gray-800 mb-3">Analisis de Resultados por Tema</h2>
+      <p class="text-xs text-ios-second mb-4">Basado en tus respuestas, estas son las areas con mayor y menor dominio en esta evaluacion:</p>
+      <div id="insights-container" class="insights-grid"></div>
+      <div class="mt-4 p-3 bg-blue-50 rounded-lg text-xs text-blue-700">
+        <p class="font-semibold mb-1">Retroalimentacion completa disponible:</p>
+        <p>Descarga el PDF para ver cada pregunta con tu respuesta, la respuesta correcta y la justificacion detallada de todas las opciones.</p>
+      </div>
+    </div>
+
+    <div class="card p-5 border-2 border-red-300 bg-red-50 mb-4">
+      <p class="font-bold text-red-800 text-sm mb-2 flex items-center gap-1.5"><span class="text-lg">&#128196;</span> Solo se califica el PDF con tu codigo</p>
+      <ol class="text-xs text-red-700 leading-relaxed list-decimal pl-4 space-y-1">
+        <li>Toca el boton azul de abajo. Se abrira el cuadro de impresion del navegador.</li>
+        <li>En "Destino", elige <strong>Guardar como PDF</strong> (no imprimas en papel).</li>
+        <li>Sube ese archivo PDF, tal cual, a la tarea correspondiente en Moodle.</li>
+      </ol>
+      <p class="text-xs text-red-800 font-bold mt-2">Cualquier otro formato (captura de pantalla, Word, HTML) o un PDF sin tu codigo de verificacion NO sera calificado.</p>
+    </div>
+
+    <button onclick="downloadPDF()" class="w-full py-4 rounded-2xl bg-ios-blue text-white font-bold text-sm mb-4 hover:bg-blue-600 transition-all active:scale-95 shadow-md shadow-blue-200">
+      Descargar Retroalimentacion Completa (PDF)
+    </button>
+
+    <div class="card p-5 border-2 border-green-300 bg-green-50 mb-4">
+      <div class="flex gap-3 items-start">
+        <span class="text-2xl flex-shrink-0">&#10003;</span>
+        <div>
+          <p class="font-bold text-green-800 text-sm mb-2">Evaluacion entregada correctamente</p>
+          <p class="text-xs text-green-700 leading-relaxed">
+            Tu Examen Parcial Avanzado de Inteligencia de Negocios ha sido completado y quedo registrado con tu correo: este es tu <strong>unico intento</strong> y esta nota es definitiva. Descarga la retroalimentacion completa para revisar cada pregunta, tu respuesta y la justificacion de la respuesta correcta y por que las otras opciones son incorrectas.
+          </p>
+          <p class="text-xs text-green-600 font-semibold mt-2">
+            Sube el PDF descargado a Moodle antes del plazo establecido; sin ese PDF, la evaluacion no se califica.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <p class="text-center text-xs text-ios-second pb-4">
+      Universidad Privada Domingo Savio · Ingeniería de Sistemas · Inteligencia de Negocios (INV-0170)
+    </p>
+  </div>
+</div>
+
+<script>
+const LOGO_DATA_URI = 'data:image/png;base64,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';
+// =====================================================================================
+// REEMPLAZAR ESTE BLOQUE COMPLETO con las preguntas reales de la materia.
+// Reglas obligatorias (ver references/question-writing-guide.md para el detalle):
+//  - 4 secciones (bloques), una por cada tema grande del avance/silabo indicado.
+//  - Cada seccion necesita un POOL de al menos 8 preguntas (aqui solo hay 2-3 de
+//    ejemplo por brevedad); QUESTIONS_PER_SECTION elige un subconjunto al azar de
+//    ese pool en cada intento, para que el examen varie entre estudiantes.
+//  - Preguntas de escenario (2-4 lineas de contexto aplicado), nunca definiciones
+//    sueltas. Las opciones incorrectas deben ser trampas plausibles, no absurdas.
+//  - El campo "just" explica por que la correcta es correcta Y por que cada
+//    incorrecta falla especificamente (no un parrafo generico).
+//  - Sin tildes ni caracteres acentuados en los strings de preguntas (se usa asi en
+//    todo el archivo por convencion/compatibilidad); la ñ SI se conserva cuando
+//    cambia el significado de la palabra (año, diseño, etc.).
+//  - NUNCA uses un apostrofe (') dentro del texto: las cadenas usan comillas
+//    simples como delimitador JS. Si necesitas comillas dentro del texto, usa
+//    comillas dobles rectas (") -- nunca seas literal con ' en contracciones etc.
+// =====================================================================================
+const SECTIONS = [
+{ id:0, title:'Arquitectura Lakehouse, modelado dimensional y gobierno del dato', icon:'🏛️', color:'blue', type:'multiple',
+  desc:'A1 y A2 · Medallion Bronze/Silver/Gold, Data Warehouse frente a Lakehouse, grano, llaves sustitutas, SCD, Delta Lake, seudonimización y licencias',
+  questions:[
+    { text:'Un analista de la distribuidora Comercial Tierra Oriental, con el afán de «ahorrarse un paso», convierte las fechas heterogéneas y recorta los espacios de las zonas ya en el momento de ingerir los CSV a la capa Bronze. Semanas después, un auditor solicita reconstruir cómo lucía el archivo original de ventas. ¿Qué principio ha quebrantado el analista y cuál es su consecuencia directa?',
+      opts:['Ninguno: Delta Lake conserva el historial de versiones, de modo que cualquier transformación aplicada en Bronze siempre puede revertirse sin pérdida de trazabilidad.','La regla de oro de Bronze, que prescribe no limpiar, no filtrar y no corregir; al alterar el dato en origen se extravía el registro fiel que permitía auditar y reprocesar si cambian las reglas.','El principio de reducción de volumen, porque limpiar en Bronze achica la capa antes de tiempo; el defecto es de almacenamiento y no de trazabilidad.','El principio de llaves sustitutas, ya que modificar zonas y fechas en Bronze invalida las claves enteras propias del almacén.'],
+      correct:1,
+      just:'Correcta la segunda: la capa Bronze es el registro fiel del origen; solo se le agregan metadatos de ingesta (por ejemplo _ingest_ts y _source) y las correcciones se aplican en Silver. Al limpiar en Bronze se destruye precisamente la evidencia que el auditor reclama. La primera es un sofisma: el versionamiento de Delta registra las escrituras posteriores, pero la versión inicial ya contendría el dato adulterado; además la rúbrica de A2 enumera «limpiar en Bronze y perder la trazabilidad» entre los errores que cuestan puntos. La tercera confunde el efecto con la causa: la reducción de volumen es una propiedad deseable de la progresión entre capas, no el principio vulnerado aquí. La cuarta atribuye a Bronze un papel que no tiene: las llaves sustitutas se generan en el modelo dimensional de Gold, no en la ingesta.'
+    },
+    { text:'La Actividad 1 establece una correspondencia entre las capas del Lakehouse y los estratos de un Data Warehouse clásico. Un estudiante afirma que Bronze equivale al Data Mart, Silver al área de preparación (staging) y Gold al ODS. ¿Cuál es la correspondencia fiel al material?',
+      opts:['Bronze es el Data Mart, Silver es el ODS y Gold es la Staging Area, pues el valor para el negocio crece hacia la capa inicial.','Bronze es la Staging Area, Silver es el ODS o Data Staging y Gold es el Data Mart u OLAP; el estudiante invirtió los extremos de la cadena.','Bronze es el ODS, Silver es la Staging Area y Gold es el Data Mart, porque los datos limpios preceden a los datos crudos.','Bronze, Silver y Gold son los tres cubos OLAP de un mismo Data Mart, diferenciados únicamente por su nivel de agregación.'],
+      correct:1,
+      just:'Correcta la segunda: la tabla de la capa por capa de A1 hace corresponder Bronze con la Staging Area (datos tal como llegan), Silver con el ODS o Data Staging (datos limpios, tipados y validados) y Gold con el Data Mart u OLAP (modelo estrella, métricas y segmentos). La primera es la inversión exacta de la cadena: coloca lo accionable al inicio y lo crudo al final. La tercera permuta Bronze y Silver, contradiciendo el orden lógico de depuración. La cuarta es un error categorial: las capas no son cubos; son etapas de calidad creciente, y la agregación pertenece a Gold, no a las tres.'
+    },
+    { text:'El Departamento Comercial de la empresa descubre que la regla de negocio para clasificar la forma de pago cambió y exige regenerar la capa Silver. Un pasante propone corregir directamente las filas de Bronze «para que todo quede coherente». ¿Qué procedimiento respeta el principio de diseño de la arquitectura?',
+      opts:['Aceptar la propuesta: como Bronze es la capa más barata, modificarla es la vía más económica para propagar la corrección hacia Silver y Gold.','Duplicar Bronze en una carpeta paralela, corregir la copia y abandonar la original, de modo que existan dos fuentes de verdad simultáneas.','Dejar Bronze intacta y reprocesar Silver desde ella con la regla nueva, regenerando después Gold; cada capa mejora la calidad sin que se modifique la anterior.','Corregir Gold, que es la capa consumida por el tablero, y mantener Silver sin cambios para no alterar el historial de limpieza.'],
+      correct:2,
+      just:'Correcta la tercera: A1 enuncia que cada capa mejora la calidad y reduce el volumen, y que nunca se modifica la capa anterior; por eso la corrección se materializa reprocesando desde Bronze hacia Silver y Gold, lo que además preserva la trazabilidad de cualquier cifra hasta la fila original. La primera confunde costo de almacenamiento con integridad: el argumento económico no justifica adulterar el registro fiel. La segunda crea dos fuentes de verdad y abandona la original, lo que anula la auditoría. La cuarta rompe la coherencia lineal: un tablero alimentado por una Gold distinta de su Silver deja cifras que no pueden rastrearse hacia atrás.'
+    },
+    { text:'Para ahorrar espacio, un equipo propone que la tabla de hechos fact_ventas tenga como grano «una fila por factura» y suprima el nivel de línea. El caso de A1 fija «una fila por línea de factura». ¿Qué razón técnica respalda el grano más fino?',
+      opts:['El grano fino es obligatorio en cualquier modelo estrella, de suerte que una fila por factura sería sintácticamente inválida en Spark SQL.','Un grano fino acelera siempre las consultas, pues cuantas más filas posee una tabla, menos tiempo toma recorrerla.','A partir del nivel más detallado siempre se puede agregar, pero desde uno agregado jamás se puede desagregar; perder la línea impediría analizar producto por producto, margen o descuentos.','El grano por factura obligaría a duplicar las dimensiones de producto, porque una factura no admite llaves foráneas.'],
+      correct:2,
+      just:'Correcta la tercera: A1 lo formula con la máxima «siempre se puede agregar, nunca desagregar». Al fijar el grano en la línea se conservan producto, cantidad, precio y descuento, que son los atributos para margen, mezcla de productos y Pareto. La primera es falsa: ningún motor impone el grano; es una decisión de diseño. La segunda invierte la realidad: más filas suelen implicar más costo de lectura; el grano fino se justifica por capacidad analítica y no por velocidad. La cuarta es un disparate técnico: una tabla de hechos de cualquier grano porta llaves foráneas; lo que cambia es qué dimensiones puede relacionar con sentido.'
+    },
+    { text:'El ERP de Comercial Tierra Oriental renumera en 2027 todos los identificadores de cliente al migrar de sistema. El almacén usa la columna CustomerSK en fact_ventas y dim_cliente. ¿Qué ventaja de las llaves sustitutas se ilustra en este episodio?',
+      opts:['Las llaves sustitutas encriptan el identificador original, de modo que nadie puede reconocer al cliente aun conociendo el nuevo sistema.','Las llaves sustitutas son enteros propios del almacén que aíslan el modelo de los cambios del sistema de origen; basta reasignar la correspondencia en la dimensión sin tocar los hechos.','Las llaves sustitutas permiten prescindir de la dimensión cliente, porque el identificador ya viaja dentro de cada hecho.','Las llaves sustitutas garantizan que dos clientes distintos jamás compartan nombre, evitando homónimos.'],
+      correct:1,
+      just:'Correcta la segunda: A1 indica que las SK son enteros propios del warehouse que protegen el modelo de cambios en el sistema origen; ante la renumeración solo se actualiza la correspondencia clave natural a clave sustituta en la dimensión, y la tabla de hechos permanece estable. La primera confunde sustitución con cifrado: un entero consecutivo no oculta nada y su propósito no es de confidencialidad (eso corresponde a la seudonimización con HMAC). La tercera es contraria al modelo estrella: la dimensión existe para describir atributos. La cuarta atribuye a la SK una garantía semántica que no tiene: la unicidad de la llave no resuelve homónimos, que se tratan con reglas de identidad como el número de cédula.'
+    },
+    { text:'La dimensión cliente incorpora el segmento RFM, que puede cambiar de «Ocasional» a «Leal» con el tiempo. La gerencia desea medir cuánto vendió un cliente mientras estaba en cada segmento. ¿Qué tratamiento de dimensión lenta satisface tal exigencia?',
+      opts:['Tipo 1, porque sobrescribir el segmento vigente es suficiente para atribuir cada venta al segmento que tenía en su fecha.','Tipo 2, que guarda la historia con fechas de vigencia y genera una fila por cada estado; así cada hecho se asocia al segmento correspondiente a su momento.','Tipo 1 combinado con una copia mensual del archivo CSV, pues el historial se recupera comparando archivos entre meses.','Ninguno es aplicable: los segmentos RFM son atributos de la tabla de hechos y no admiten tratamiento dimensional.'],
+      correct:1,
+      just:'Correcta la segunda: según A1, el Tipo 2 conserva historia con fechas de vigencia, justo lo que se requiere para atribuir ventas al segmento vigente en su fecha. La primera es la trampa típica: el Tipo 1 sobrescribe, de modo que tras el cambio todas las ventas pasadas aparecerían bajo el segmento nuevo, falseando el análisis. La tercera sustituye el diseño por un parche artesanal, no reproducible ni consultable. La cuarta es falsa: A1 sitúa Segment, Recency, Frequency y Monetary dentro de DIM_CLIENTE; precisamente por ser atributos descriptivos cambiantes se requiere el tratamiento de SCD.'
+    },
+    { text:'Un estudiante resume la evolución así: «Inmon y Kimball son de 2014 y 2020; Spark y el Lakehouse nacieron en 1992 y 1996». Otro compañero le corrige. ¿Cuál es la cronología y la caracterización fiel del material?',
+      opts:['Inmon 1992 y Kimball 1996 corresponden al Data Warehouse clásico, con esquema definido antes de cargar (schema-on-write); Spark 2014 y Lakehouse 2020 al enfoque moderno, con esquema flexible al leer (schema-on-read).','Inmon 1992 y Kimball 1996 corresponden al Lakehouse, que admite datos no estructurados; Spark 2014 y Lakehouse 2020 pertenecen al Data Warehouse clásico.','Las fechas del estudiante son correctas, pero la caracterización schema-on-write corresponde al Lakehouse y schema-on-read al Data Warehouse.','Las cuatro fechas son irrelevantes; lo único que distingue ambos enfoques es el proveedor de almacenamiento en la nube.'],
+      correct:0,
+      just:'Correcta la primera: A1 coloca Inmon 1992 y Kimball 1996 en la columna del Data Warehouse clásico (solo estructurados, esquema antes de cargar, ETL hacia cubo OLAP) y Spark 2014 y Lakehouse 2020 en la del Lakehouse (estructurados y no estructurados, esquema al leer, ingesta cruda hacia Delta Lake). La segunda permuta las columnas completas. La tercera valida una cronología invertida y, además, intercambia los modos de esquema. La cuarta ignora que el material distingue los enfoques por estructura de datos, momento de aplicación del esquema, flujo y almacenamiento, no por un proveedor. Cabe recordar que el curso conserva el modelo estrella de Kimball, pero construido sobre Lakehouse.'
+    },
+    { text:'Un operador ejecuta por descuido un overwrite que sobrescribe la tabla Silver con una versión incompleta. Antes de entrar en pánico, el docente le pregunta qué atributo de Delta Lake le permite auditar el estropicio y recuperar el estado anterior. ¿Cuál es el atributo y la instrucción de apoyo?',
+      opts:['El versionamiento con viaje en el tiempo (time travel), consultable con DESCRIBE HISTORY sobre la tabla; cada escritura genera una versión recuperable.','El formato CSV, que por ser texto plano conserva automáticamente una copia de cada versión de la tabla.','La evaluación perezosa (lazy evaluation), que difiere la escritura hasta que el usuario confirme la acción final.','Las restricciones de clave foránea, que impiden sobrescribir tablas referenciadas por hechos.'],
+      correct:0,
+      just:'Correcta la primera: las diapositivas de A2 asocian Delta a transacciones ACID y versionamiento (time travel), y la evidencia obligatoria incluye DESCRIBE HISTORY para ver el historial de versiones. La segunda es falsa y además contradice el error común listado en A2, «guardar en CSV en lugar de Delta»: un CSV no versiona. La tercera confunde dos conceptos: la evaluación perezosa difiere el cómputo de las transformaciones hasta una acción, pero una vez que la acción de escritura se ejecuta, el overwrite se consuma. La cuarta no existe como mecanismo de protección de Delta en este contexto; las restricciones relacionales pertenecen a otro nivel del modelo.'
+    },
+    { text:'Un compañero encadena transformaciones en PySpark e invoca count() y show() tras cada una «para ir verificando». Otro lo previene de que ello figura entre los errores que restan puntos en A2. ¿Cuál es la razón de fondo?',
+      opts:['count() y show() eliminan duplicados como efecto colateral, alterando el resultado de la cadena.','Cada acción fuerza la ejecución inmediata del plan acumulado, y con evaluación perezosa las transformaciones deberían encadenarse y ejecutarse en una sola acción final; abusar de acciones desperdicia cómputo sin aportar trazabilidad.','Las acciones solo funcionan con tablas CSV y fallan al leer Delta, por lo que debilitan la reproducibilidad.','Mostrar resultados parciales viola la regla de que cada celda debe documentar un único paso del proceso, con independencia del costo.'],
+      correct:1,
+      just:'Correcta la segunda: A2 enseña «lazy evaluation: nada se ejecuta hasta la acción final» y rotula como error llamar a count() o show() en cada paso; en el nivel Estratégico de la rúbrica se premia un código «sin acciones innecesarias». La primera inventa un efecto colateral inexistente: ninguna de las dos acciones modifica los datos. La tercera es falsa: funcionan con Delta, y de hecho A2 pide leer de vuelta la tabla Silver y contar sus filas como evidencia; lo reprochable es la reiteración innecesaria, no la acción. La cuarta tergiversa la pauta documental: se pide documentar cada decisión, no prohibir resultados parciales.'
+    },
+    { text:'Un equipo presenta un diseño con una tabla de hechos y tres dimensiones, y afirma que alcanza el nivel más alto de la rúbrica de esquema multidimensional de A1. ¿Qué calificación le corresponde y qué le falta para el nivel Estratégico?',
+      opts:['Nivel Estratégico, porque una tabla de hechos con tres dimensiones basta cuando se dibuja con un programa profesional.','Nivel Avanzado, ya que el diseño exige cuatro dimensiones o más, y las llaves PK/FK son opcionales.','Nivel Satisfactorio (estrella con hechos y 3 dimensiones, 1 punto); para el Estratégico se requiere una estrella o copo de nieve con SCD y granularidad justificada, además de las cuatro dimensiones o más con PK/FK.','Ninguno: los esquemas con menos de cinco dimensiones quedan fuera de rúbrica y se califican con cero.'],
+      correct:2,
+      just:'Correcta la tercera: la rúbrica de A1 asigna Satisfactorio (1 punto) a «estrella con hechos + 3 dimensiones», Avanzado (2 puntos) a «4+ dimensiones, PK/FK y granularidad» y Estratégico (5 puntos) a «estrella/copo de nieve con SCD y granularidad justificada»; el entregable pide 1 hecho y al menos 4 dimensiones. La primera confunde herramienta con contenido: dibujar con Draw.io no sube el nivel. La segunda yerra en dos frentes: tres dimensiones no alcanzan el Avanzado y las PK/FK sí son parte de sus criterios. La cuarta fabrica un umbral de cinco dimensiones que el material no contiene.'
+    },
+    { text:'La gerencia asegura que el identificador de cliente «ya está anonimizado» porque en el tablero aparece como CLI- seguido de diez caracteres hexadecimales derivados de un HMAC-SHA256 con sal. El oficial de datos disiente. ¿Qué precisión es la acertada?',
+      opts:['Es anonimización irreversible y completa; una vez aplicado el HMAC, ya no puede existir riesgo de reidentificación por ningún medio.','Es seudonimización: desvincula el identificador directo, pero quien posea la clave o combine cuasi-identificadores (zona, canal, edad, género) aún podría reidentificar; por eso se complementa con generalización y k-anonimato.','Es minimización, porque se reduce el número de columnas del conjunto; la identificación queda resuelta con el solo hecho de ocultar el nombre.','Es cifrado simétrico reversible, de modo que cualquier usuario del tablero puede recuperar la cédula original con la sal publicada.'],
+      correct:1,
+      just:'Correcta la segunda: el seudónimo CLI- más diez caracteres del HMAC reemplaza al identificador directo, pero sigue siendo un identificador estable; la reidentificación es posible por la clave o por combinación de cuasi-identificadores, por eso el cuaderno de curación añade generalización y k-anonimato (k mayor o igual que 5) sobre zona, canal, rango etario y género. La primera confunde seudonimización con anonimización y promete un riesgo nulo que ningún técnico serio garantiza. La tercera mezcla técnicas: la minimización consiste en no conservar atributos innecesarios, y ocultar el nombre no cubre los cuasi-identificadores. La cuarta describe algo distinto: un HMAC es una función unidireccional con clave, no un cifrado reversible, y la sal no se publica.'
+    },
+    { text:'El cuaderno de curación seudonimiza la cédula con HMAC-SHA256 y una sal secreta, en lugar de aplicar un SHA-256 simple. Considerando que los números de cédula del conjunto van aproximadamente de 2,5 a 14 millones, ¿cuál es el motivo principal?',
+      opts:['SHA-256 simple es un algoritmo obsoleto que ya no existe en las bibliotecas estándar de Python.','El espacio de posibles cédulas es de apenas unas decenas de millones de valores; con un hash sin clave, un atacante podría calcular el hash de todas y compararlo (ataque de diccionario), mientras que el HMAC exige conocer la clave secreta.','El HMAC acorta la salida automáticamente a diez caracteres, lo que impide cualquier colisión.','El HMAC garantiza que la misma cédula produzca seudónimos diferentes en cada ejecución, evitando el cruce de tablas.'],
+      correct:1,
+      just:'Correcta la segunda: con un dominio tan reducido (decenas de millones de cédulas posibles) un hash determinista sin secreto se invierte enumerando todos los valores; el HMAC incorpora una clave secreta, y sin ella la enumeración no sirve. La primera es falsa: SHA-256 sigue disponible; su debilidad aquí es el dominio pequeño, no la obsolescencia. La tercera confunde causas: el truncamiento a diez caracteres lo decide el diseñador, y lejos de impedir colisiones las hace posibles (aunque con probabilidad ínfima, del orden de tres por millón para 2.600 clientes). La cuarta es lo opuesto de lo deseable: el seudónimo debe ser determinista para que la misma persona conserve el mismo seudónimo y permita unir ventas y dimensión.'
+    },
+    { text:'La documentación de las fuentes del caso indica que el conjunto de Mendeley se difunde bajo CC BY 4.0 y el de SQLShed bajo CC0, siendo este último sintético. Un estudiante planea publicar un tablero derivado de ambos. ¿Qué obligación y qué cautela corresponden?',
+      opts:['Con CC BY 4.0 debe atribuirse la autoría de Mendeley; con CC0 no hay obligación de atribución, pero al ser datos sintéticos sus hallazgos ilustran el método y no describen un mercado real.','Ambas licencias exigen atribución y prohíben el uso comercial, de modo que el tablero solo puede circular en el aula.','Con CC0 debe pagarse una regalía al autor, y con CC BY 4.0 basta con no modificar los datos.','Ninguna licencia aplica a datos tabulares; el material estadístico es siempre de dominio público.'],
+      correct:0,
+      just:'Correcta la primera: CC BY 4.0 permite el uso y la redistribución a condición de reconocer la autoría; CC0 equivale a una renuncia de derechos, de modo que no exige atribución (aunque citar es buena práctica académica). Además, que SQLShed sea sintético obliga a la cautela de no extrapolar las conclusiones a un comportamiento real de mercado. La segunda atribuye a CC0 una exigencia que no tiene y a ambas una prohibición comercial que no figura en ellas. La tercera inventa regalías inexistentes y confunde la condición de CC BY (atribuir) con la de no modificar (propia de otras licencias, como las ND). La cuarta es falsa: los conjuntos de datos pueden estar protegidos y se rigen por su licencia, no por una presunción de dominio público.'
+    },
+    { text:'El diagrama de la Actividad 1 menciona «6 reglas de limpieza» en la capa Silver, mientras que la Actividad 2, actualizada en 2026, enumera siete reglas mínimas. Un estudiante dudoso pregunta cuál es la séptima regla y cómo se aplica. ¿Qué respuesta es fiel a A2?',
+      opts:['Eliminar duplicados con dropDuplicates sobre InvoiceNo, StockCode y CustomerID, porque un duplicado exacto infla ventas y frecuencia.','Calcular Total_Sale como Quantity por UnitPrice, que es la métrica base de todo el análisis posterior.','Estandarizar Description con trim y upper, para no contar el mismo producto como dos.','Eliminar CustomerID nulo, pues no se puede segmentar ni medir recompra de un cliente anónimo.'],
+      correct:0,
+      just:'Correcta la primera: en la tabla de A2 la regla 7 es eliminar duplicados con dropDuplicates(["InvoiceNo","StockCode","CustomerID"]). El diagrama de A1 es anterior y habla de seis; la versión actualizada es la vigente para el entregable. La segunda es la regla 5, la tercera la regla 6 y la cuarta la regla 1; todas son reglas auténticas, pero ocupan otras posiciones, de modo que son distractores de «dato verdadero, lugar equivocado». Conviene retener la lógica: R1 a R3 filtran (cliente nulo, cantidad no positiva, precio no positivo), R4 convierte tipos, R5 y R6 derivan y estandarizan, y R7 deduplica.'
+    }
+  ]
+},
+{ id:1, title:'Calidad de datos, reglas Silver y anonimización', icon:'🧪', color:'red', type:'multiselect',
+  desc:'A2 y cuaderno de curación · Dimensiones de calidad, las 7 reglas, métricas de metadatos, rúbrica, k-anonimato y buenas prácticas de reproducibilidad',
+  questions:[
+    { text:'A2 ubica cada defecto en una dimensión de calidad. Selecciona las 4 parejas defecto-dimensión que concuerdan con el material, desdeñando las permutadas.',
+      opts:['CustomerID nulo corresponde a completitud.','Quantity menor o igual que cero corresponde a validez.','Filas duplicadas por factura y producto corresponden a unicidad.','Fechas con formato d/M/yyyy y texto con espacios sobrantes corresponden a consistencia.','CustomerID nulo corresponde a unicidad.','Filas duplicadas por factura y producto corresponden a validez.'],
+      correct:[0,1,2,3],
+      just:'Correctas: la lámina de dimensiones asigna a completitud la pregunta «¿faltan valores?» (CustomerID y Description nulos), a validez «¿están en rango?» (Quantity y UnitPrice menores o iguales que cero), a unicidad «¿hay repetidos?» (duplicados por factura y producto) y a consistencia «¿formato uniforme?» (fechas d/M/yyyy, mayúsculas y espacios). Incorrecta la quinta: un valor ausente se mide con completitud, no con unicidad; la unicidad cuenta repeticiones. Incorrecta la sexta: un duplicado puede ser perfectamente válido fila por fila (cada una está en rango); lo que lo delata es su repetición, de ahí la unicidad. Ambas son permutaciones típicas de quien memoriza las palabras sin captar qué mide cada dimensión.'
+    },
+    { text:'La capa Silver de A2 exige siete reglas mínimas. Selecciona las 4 parejas regla-justificación de negocio que reproducen fielmente el material.',
+      opts:['Eliminar CustomerID nulo, porque no se puede segmentar ni medir recompra de un cliente anónimo.','Quitar Quantity menor o igual que cero, porque son devoluciones o cancelaciones que distorsionan el revenue.','Quitar UnitPrice menor o igual que cero, porque no son ventas reales (ajustes o regalos).','Eliminar duplicados por InvoiceNo, StockCode y CustomerID, porque un duplicado exacto infla ventas y frecuencia.','Quitar Quantity menor o igual que cero, porque equivalen a clientes sin cuenta bancaria.','Estandarizar Description con trim y upper, porque así se reduce el tamaño del archivo Delta.'],
+      correct:[0,1,2,3],
+      just:'Correctas: las cuatro primeras figuran literalmente en la tabla de requisitos de A2 con esa justificación de negocio (R1, R2, R3 y R7). Incorrecta la quinta: la cantidad no positiva se explica por devoluciones o cancelaciones, no por estado bancario alguno; es un disparate verosímil por su tono financiero. Incorrecta la sexta: la estandarización de Description se justifica por evitar que el mismo producto cuente como dos, es decir, por consistencia analítica; el tamaño de archivo no es el motivo declarado y trim con upper no persigue compresión alguna.'
+    },
+    { text:'La rúbrica de A2 pide un reporte de metadatos de calidad con un mínimo de cinco métricas y una interpretación. Selecciona las 5 métricas que la lámina propone como mínimas.',
+      opts:['Nulos por columna.','Duplicados exactos.','Cantidades menores o iguales que cero.','Precios menores o iguales que cero.','Tasa de retención (Silver entre Bronze, por cien).','Inercia del modelo K-Means.','Coeficiente de Gini de las ventas por zona.'],
+      correct:[0,1,2,3,4],
+      just:'Correctas: el código de A2 calcula 1) nulos por columna, 2) duplicados exactos, 3) cantidades no positivas, 4) precios no positivos y 5) tasa de retención como filas de Silver divididas entre filas de Bronze por cien. Incorrecta la sexta: la inercia pertenece a la fase de segmentación con K-Means de la Actividad 3, no al control de calidad Bronze a Silver. Incorrecta la séptima: el coeficiente de Gini es una medida de concentración que el curso no pide en este reporte. Ambas son conceptos reales pero de otro bloque, lo que entrena a distinguir el origen de cada indicador. Además, A2 exige interpretar: una métrica sin lectura de negocio queda en el nivel Básico.'
+    },
+    { text:'A2 enumera los errores comunes que cuestan puntos. Selecciona los 4 que efectivamente figuran allí.',
+      opts:['Limpiar en Bronze y perder la trazabilidad.','Llamar a count() o show() en cada paso de la cadena.','Convertir la fecha con el formato equivocado y quedarse con todo nulo.','Guardar en CSV en lugar de Delta.','Documentar los prompts de IA utilizados.','Calcular la tasa de retención al final del proceso.','Usar cómputo serverless en lugar de un clúster propio.'],
+      correct:[0,1,2,3],
+      just:'Correctas: las cuatro primeras son las advertencias de la lámina «Evita esto». La quinta está invertida: lo que se sanciona es NO documentar los prompts de IA usados; documentarlos es obligatorio. La sexta carece de respaldo: calcular la retención al final es precisamente lo previsto, pues compara Silver con Bronze. La séptima es una invención: A2 recomienda usar el cómputo serverless habilitado, de modo que no es un error. Obsérvese cómo la quinta es un clásico de inversión de polaridad: el mismo tema (prompts) aparece, pero con la conducta contraria.'
+    },
+    { text:'Sobre la política de IA generativa de A2 («copiloto, no piloto»), selecciona las 3 afirmaciones que son fieles al material.',
+      opts:['Está permitido generar código inicial, depurar errores y explicar conceptos como Delta o la evaluación perezosa.','Es obligatorio anotar en el notebook qué prompts se usaron y qué se modificó.','Un notebook sin errores pero sin comprensión del código se ubica en el nivel Básico y puede cuestionarse en la sustentación.','Si el código funciona, no es necesario sustentarlo porque la ejecución exitosa prueba la autoría.','Está prohibido emplear cualquier asistente de IA, aun para explicar conceptos.'],
+      correct:[0,1,2],
+      just:'Correctas: la lámina permite código inicial, depuración y explicación de conceptos; obliga a registrar prompts y modificaciones; y advierte que, en la sustentación, se evalúa la comprensión, de modo que un notebook sin errores pero sin entendimiento queda en el nivel Básico. Incorrecta la cuarta: confunde ejecución con comprensión; justamente por eso se sustenta. Incorrecta la quinta: es una prohibición absoluta que el material no impone; lo no permitido es entregar un notebook que nunca se ejecutó ni se entendió.'
+    },
+    { text:'Al curar las ventas crudas de Tierra Oriental, el cuaderno aplica decisiones específicas. Selecciona las 4 transformaciones que reproducen fielmente esas decisiones.',
+      opts:['El vendedor nulo se reemplaza por V00 con la etiqueta «Sin asignar», conservando el ingreso.','El precio igual a cero se reemplaza por el precio de lista del producto.','El descuento nulo se interpreta como cero.','Las líneas con cantidad no positiva, cantidad extrema o producto inexistente se apartan a cuarentena.','El descuento nulo se rellena con el promedio de descuentos del cliente.','El vendedor nulo provoca la eliminación de la línea, para no distorsionar el análisis por vendedor.'],
+      correct:[0,1,2,3],
+      just:'Correctas: el cuaderno asigna V00 «Sin asignar» al vendedor nulo, imputa el precio cero con el precio de lista, trata el descuento nulo como cero y separa en cuarentena las cantidades no positivas, las extremas y los productos inexistentes. Incorrecta la quinta: no se imputa un descuento promedio del cliente; ese relleno inventaría un beneficio comercial no registrado. Incorrecta la sexta: eliminar la línea haría perder ingreso real (la variante estricta del experimento retiene 349 líneas menos y unos Bs 62.700 de venta); el análisis por vendedor se protege aislando V00, no destruyendo ventas.'
+    },
+    { text:'El cuaderno de curación anonimiza la dimensión de clientes con el criterio de k-anonimato. Selecciona las 3 afirmaciones correctas.',
+      opts:['Los cuasi-identificadores considerados son la zona, el canal, el rango etario y el género.','Se generaliza progresivamente en tres niveles y se retiran al final los registros cuyo grupo queda con menos de 5 individuos.','Un conjunto es k-anónimo cuando cada combinación de cuasi-identificadores aparece en al menos k registros, con k mayor o igual que 5 en este caso.','K-anonimato consiste en reemplazar el nombre por un hash, por lo que equivale a la seudonimización.','Basta con elegir k igual a 1 para lograr la máxima protección.'],
+      correct:[0,1,2],
+      just:'Correctas: los cuasi-identificadores son zona, canal, rango etario y género; la generalización avanza por tres niveles y los registros que aún quedan en grupos con k menor que 5 se retiran; y la definición de k-anonimato exige que cada combinación aparezca en al menos k registros (aquí k de 5 o más). Incorrecta la cuarta: reemplazar el nombre por un hash es seudonimización, un mecanismo distinto que oculta el identificador directo pero no protege contra la reidentificación por cuasi-identificadores. Incorrecta la quinta: con k igual a 1 cada persona puede ser única en su grupo, es decir, ninguna protección; el valor protege más cuanto mayor es.'
+    },
+    { text:'La reproducibilidad de un análisis exige disciplina. Selecciona las 4 prácticas del cuaderno y del curso que la favorecen.',
+      opts:['Fijar una semilla (SEMILLA igual a 42) para todo proceso con componente aleatorio, como K-Means.','Trabajar sobre una copia (df.copy()) al transformar, para no alterar el DataFrame original por efecto de referencias compartidas.','Registrar la huella SHA-256 de los archivos de entrada para comprobar que son los mismos.','Documentar versiones, fuentes y licencias de los conjuntos empleados.','Leer las columnas con inferencia automática de tipos para que el resultado se adapte a cada ejecución.','Ejecutar las celdas en el orden en que a cada quien le resulte cómodo.'],
+      correct:[0,1,2,3],
+      just:'Correctas: la semilla fija la aleatoriedad (K-Means con k igual a 4 entrega siempre los mismos centroides); df.copy() evita efectos laterales sobre el original; el checksum SHA-256 verifica la integridad y la identidad de la entrada; y documentar versiones, fuentes y licencias permite repetir y auditar. Incorrecta la quinta: la inferencia automática de tipos es fuente de variabilidad (por ejemplo, un teléfono leído como número decimal con sufijo .0 o ceros iniciales perdidos); lo reproducible es declarar tipos explícitos, como dtype igual a str en la lectura. Incorrecta la sexta: un cuaderno reproducible debe ejecutarse de arriba abajo en orden determinado.'
+    },
+    { text:'Las ventas crudas de Tierra Oriental traen fechas en cuatro patrones. Selecciona las 3 afirmaciones verificadas sobre su tratamiento.',
+      opts:['Convertir con un único formato ISO (año-mes-día) deja sin fecha 11.160 de las 62.000 líneas únicas, es decir, alrededor de 18 por ciento.','Los patrones se resuelven aplicando cuatro formatos explícitos en secuencia (año-mes-día, día/mes/año, día-mes-año de dos dígitos y año.mes.día) y completando los nulos de cada paso con el siguiente.','En los patrones con barra y con guion corto jamás aparece un valor mayor que 12 en el segundo campo, mientras que en miles de filas el primero sí supera 12; esto confirma el orden día primero.','El orden día-mes es una conjetura imposible de comprobar con los datos, por lo que debe dejarse a la inferencia automática del motor.','Se descartan las fechas en formato de dos dígitos de año porque su siglo no puede conocerse.'],
+      correct:[0,1,2],
+      just:'Correctas: con solo el formato ISO quedan nulas 11.160 de 62.000 líneas (18,0 por ciento); el cuaderno aplica cuatro patrones con formatos explícitos y va completando los nulos; y la evidencia empírica para fijar el orden día primero es que el segundo campo nunca excede 12, mientras que el primero lo hace en 2.277 filas del patrón con guion y 2.267 del patrón con barra. Incorrecta la cuarta: la inferencia automática en modo mixto se equivoca (con dayfirst falso mal interpreta 2.726 filas y con dayfirst verdadero 19.783 frente a la lectura por patrones), por lo que no es una alternativa segura. Incorrecta la quinta: el rango resultante, del 1 de enero de 2024 al 31 de octubre de 2026, demuestra que esas fechas sí se convierten con el formato adecuado y no se descartan.'
+    },
+    { text:'En la curación de la dimensión clientes se aplican varias correcciones. Selecciona las 4 que concuerdan con el cuaderno.',
+      opts:['Zona y canal se normalizan con un mapa de equivalencias, sin tildes ni diferencias de mayúsculas o espacios.','La fecha de nacimiento fuera del rango de 18 a 100 años se convierte en nulo.','La latitud igual a cero (coordenada imposible para Santa Cruz) se convierte en nulo.','El límite de crédito nulo se toma como cero.','Los clientes con fecha de nacimiento inválida se eliminan de la dimensión.','La latitud cero se conserva porque indica el centro de la ciudad.'],
+      correct:[0,1,2,3],
+      just:'Correctas: el cuaderno unifica zona y canal con un mapa (41 variantes crudas de zona y 10 de canal quedan reducidas a las categorías oficiales), anula fechas de nacimiento imposibles (134 casos entre 1900 y futuras) y latitudes en cero (74 casos), y toma el crédito nulo (129 casos) como cero. Incorrecta la quinta: eliminar clientes por un dato accesorio destruiría sus ventas históricas; se anula solo el campo inválido. Incorrecta la sexta: la coordenada 0,0 queda en el golfo de Guinea, no en Santa Cruz de la Sierra; es un valor centinela de captura fallida, no un centro urbano.'
+    },
+    { text:'Sobre Delta Lake tal como lo presenta A2, selecciona las 3 afirmaciones correctas.',
+      opts:['Ofrece transacciones ACID y versionamiento (time travel).','DESCRIBE HISTORY muestra el historial de versiones de la tabla.','Leer de vuelta la tabla guardada y contar sus filas constituye evidencia obligatoria del guardado.','Guardar en CSV es preferible porque Delta no admite sobrescritura.','Delta almacena únicamente la última versión y descarta el historial para ahorrar espacio.'],
+      correct:[0,1,2],
+      just:'Correctas: A2 asocia a Delta las transacciones ACID y el versionamiento, pide DESCRIBE HISTORY como prueba del historial y exige leer de vuelta la tabla (conteo, esquema y vista previa) como evidencia. Incorrecta la cuarta: contradice la advertencia de «guardar en CSV en lugar de Delta» y la sobrescritura sí es posible (modo overwrite). Incorrecta la quinta: justamente lo característico de Delta es conservar versiones; descartar el historial anularía el viaje en el tiempo.'
+    },
+    { text:'El análisis de segmentación RFM con K-Means exige preparación. Selecciona las 3 afirmaciones correctas.',
+      opts:['Recency mide los días transcurridos desde la última compra; Frequency, la cantidad de compras distintas; Monetary, el importe acumulado.','K-Means es sensible a la escala, por lo que las variables se estandarizan (por ejemplo, con StandardScaler) antes de agrupar.','Se fija una semilla para que la asignación de grupos sea reproducible, y el curso adopta k igual a 4.','K-Means no requiere estandarizar porque Monetary y Recency están, de forma natural, en la misma escala.','Recency se calcula como la suma de importes de cada cliente.'],
+      correct:[0,1,2],
+      just:'Correctas: la primera define bien las tres variables RFM; la segunda reconoce que K-Means usa distancias euclídeas y que una variable en bolivianos dominaría a otra en días si no se estandariza; la tercera recoge la semilla fija y k igual a 4 del cuaderno. Incorrecta la cuarta: Monetary (miles de bolivianos) y Recency (días) difieren en órdenes de magnitud, de modo que sin estandarizar el importe decidiría casi por sí solo los grupos. Incorrecta la quinta: la suma de importes es Monetary; Recency es un tiempo transcurrido, de modo que es una inversión de definiciones.'
+    }
+  ]
+},
+{ id:2, title:'Pasos reproducibles sobre los CSV crudos de Tierra Oriental', icon:'🔁', color:'teal', type:'dragdrop',
+  desc:'Caso Comercial Tierra Oriental S.R.L. · Lectura, deduplicación, fechas, cuarentena, imputaciones, seudonimización y calendario -- completa cada enunciado con el término correcto',
+  questions:[
+    { before:'Para evitar que la inferencia automática convierta el teléfono en un número decimal del tipo 75936347.0 o descarte ceros iniciales, la primera celda lee cada CSV crudo declarando ',
+      after:' en todas las columnas y delegando la conversión de tipos a pasos explícitos y documentados.',
+      correct:'dtype=str',
+      just:'El término correcto es dtype=str: al leer todo como texto se preserva el dato tal como llegó (principio de fidelidad de la capa cruda) y cada conversión posterior queda explícita y reproducible. Con la inferencia por defecto, el teléfono se leyó como decimal (75936347.0), el NIT como entero y el límite de crédito como decimal, es decir, el motor decide por usted y puede decidir distinto con otro archivo. Ningún otro término del banco cumple esa función: id_linea es una clave, cuarentena es un destino de filas y SEMILLA fija aleatoriedad, no tipos.'
+    },
+    { before:'Las ventas crudas suman 62.930 filas. La clave que identifica de manera unívoca cada línea de venta, y que permite comprobar que quedan 62.000 únicas tras la deduplicación, es ',
+      after:', coherente con el grano elegido para la tabla de hechos.',
+      correct:'id_linea',
+      just:'El término correcto es id_linea: es la clave del grano (una fila por línea) y por ello la deduplicación se hace primero por fila idéntica y se verifica con la unicidad de id_linea (62.000 valores únicos). Aplicar sobre este caso la regla R7 de A2, que deduplica por factura, producto y cliente, pasaría por alto que aquí existe un identificador de línea y eliminaría 3.436 líneas legítimas adicionales (quedarían 58.564 de 62.000). V00 y C-DESCONOCIDO son valores de reemplazo de vendedor y cliente, no claves de línea.'
+    },
+    { before:'La inspección de las ventas crudas revela un número exacto de filas completamente repetidas, que se eliminan en el primer paso de limpieza: ',
+      after:' filas, lo que lleva el total de 62.930 a 62.000.',
+      correct:'930',
+      just:'El número correcto es 930: 62.930 menos 62.000 únicas. Conviene verificarlo con la aritmética y no por intuición: representa 1,48 por ciento del archivo y, de no eliminarlas, la venta neta final se inflaría en unos Bs 163 mil (alrededor de 1,5 por ciento), pues las repeticiones sobreviven al resto del flujo (quedarían 62.721 líneas en lugar de 61.795). El valor 930 no debe confundirse con las 205 líneas enviadas a cuarentena, ni con las 349 líneas de vendedor ausente, que son hallazgos de otra regla.'
+    },
+    { before:'Las líneas con cantidad no positiva, cantidad atípica o producto inexistente no se destruyen: se aíslan en una tabla de ',
+      after:' con el motivo del rechazo, de manera que el negocio pueda revisarlas y el proceso conserve su rastro de auditoría.',
+      correct:'cuarentena',
+      just:'El término correcto es cuarentena: separa lo rechazado sin perderlo y registra el motivo (119 por producto inexistente, 60 por cantidad no positiva y 26 por cantidad atípica; en total 205). Eliminar sin dejar rastro impide explicar la retención (61.795 de 62.000, es decir, 99,67 por ciento) y la conciliación contra el origen. Ninguno de los demás términos cumple esta función: Tukey es el criterio de detección de atípicos, no el destino de las filas, y V00 es un valor de sustitución para conservar la venta, no para apartarla.'
+    },
+    { before:'Para detectar cantidades atípicas por producto, el cuaderno emplea el criterio de ',
+      after:' con un factor de 3 sobre el rango intercuartílico, que señala 26 líneas aun cuando solo 25 de ellas valen 9999 unidades.',
+      correct:'Tukey',
+      just:'El término correcto es Tukey: sus vallas calculan cuartiles por producto y marcan como extremo lo que supera Q3 más 3 veces el rango intercuartílico. Por eso detecta las 25 líneas de 9999 y además una de P027 con 17 unidades, atípica dentro de su propio producto; un umbral fijo mayor que 500 habría dejado pasar esta última. Omitir el control es gravísimo: la venta neta saltaría de Bs 10,71 millones a Bs 18,31 millones (alrededor de 71 por ciento más). Cuarentena es el destino de las filas, no el criterio para detectarlas.'
+    },
+    { before:'Cuando el vendedor viene nulo (349 líneas en el resultado final), el cuaderno no elimina la venta: la asigna al código ',
+      after:' con la etiqueta «Sin asignar», para conservar el ingreso y poder aislar ese grupo en el análisis por vendedor.',
+      correct:'V00',
+      just:'El término correcto es V00: es el vendedor comodín que mantiene la venta y permite medirla aparte. Eliminar esas líneas reduciría el resultado a 61.446 filas y restaría unos Bs 62.700 de venta neta, un sesgo sin justificación de negocio. C-DESCONOCIDO es el comodín homólogo, pero para clientes huérfanos, no para vendedores, y es una distinción sutil que el estudiante apresurado confunde: el prefijo V alude a vendedor y el prefijo C a cliente.'
+    },
+    { before:'Las ventas que citan un cliente inexistente en el maestro (el código C99999) se conservan asociadas al registro comodín ',
+      after:', con llave sustituta cero en la dimensión, para no romper la integridad referencial del modelo estrella.',
+      correct:'C-DESCONOCIDO',
+      just:'El término correcto es C-DESCONOCIDO: el registro comodín (llave sustituta cero) garantiza que todo hecho tenga una fila en dim_cliente y que ninguna venta se pierda por un huérfano. La alternativa estricta, eliminar la línea, retiraría 200 líneas y unos Bs 32 mil de venta, y deformaría los totales. V00 cumple el mismo papel, pero para el vendedor; y cuarentena es una tabla de rechazos, no un miembro de la dimensión.'
+    },
+    { before:'Cuando el precio unitario registrado es cero (18 líneas), el cuaderno lo sustituye por el valor de ',
+      after:' del producto, en vez de eliminar la línea o dejar un ingreso nulo.',
+      correct:'precio_lista',
+      just:'El término correcto es precio_lista: es la mejor referencia disponible para el precio vigente del producto, de modo que la línea conserva su cantidad y su ingreso razonable. Dejar el cero subestimaría la venta; eliminar la línea la perdería (quedarían 61.777 filas). La mediana se emplea en otro paso, la imputación del costo faltante, no del precio; y V00 o C-DESCONOCIDO son comodines de identidad, no de importe.'
+    },
+    { before:'Cuando el costo unitario de un producto falta, se estima aplicando a su precio de lista el margen típico de su categoría, calculado con la ',
+      after:' y no con el promedio, para que los productos de margen anómalo no arrastren la imputación.',
+      correct:'mediana',
+      just:'El término correcto es mediana: es robusta a valores extremos, a diferencia de la media. Por ejemplo, con margen mediano de 23,08 por ciento en Snacks, el Maní confitado de 200 g con precio de lista Bs 10,56 recibe un costo de Bs 8,12; y la Harina de 1 kg (Abarrotes, margen mediano 10,71 por ciento, precio de lista Bs 6,84) recibe Bs 6,11. Tukey es una técnica de detección de atípicos en cantidades, no un estadístico de imputación; y precio_lista es el insumo base del cálculo, no el estadístico.'
+    },
+    { before:'El identificador del cliente publicado en el tablero es CLI- seguido de diez caracteres hexadecimales derivados de un ',
+      after:' con sal secreta aplicado a la cédula normalizada, que impide recuperar la cédula por enumeración del espacio de posibles valores.',
+      correct:'HMAC-SHA256',
+      just:'El término correcto es HMAC-SHA256: combina la función SHA-256 con una clave secreta; sin esa clave no se puede recomputar el seudónimo para cada cédula candidata, y como las cédulas están en un espacio de apenas unas decenas de millones de valores, un hash sin clave sería enumerable. Truncar a diez caracteres (40 bits) mantiene una probabilidad de colisión del orden de tres por millón con 2.600 clientes, lo cual se comprueba verificando la unicidad del seudónimo. El k-anonimato es otra técnica (agrupa cuasi-identificadores) y no sirve para derivar un seudónimo.'
+    },
+    { before:'Tras seudonimizar, la tabla de clientes se generaliza (zona, canal, rango etario y género) hasta que cada combinación aparezca en al menos cinco registros; esta propiedad se denomina ',
+      after:' y los clientes cuyo grupo aún queda por debajo de ese umbral se retiran.',
+      correct:'k-anonimato',
+      just:'El término correcto es k-anonimato (con k igual a 5): garantiza que cada persona se confunda con al menos otras cuatro en sus cuasi-identificadores. No es lo mismo que HMAC-SHA256, que seudonimiza el identificador directo pero no protege frente a la combinación de atributos. La generalización se aplica en tres niveles antes de retirar los casos residuales, lo que explica por qué en la dimensión aparecen categorías como «Suprimido» o rangos más amplios.'
+    },
+    { before:'Para que K-Means entregue los mismos grupos en cada ejecución, el cuaderno fija una ',
+      after:' (con valor 42) en todas las operaciones con componente aleatorio y registra además las versiones de las bibliotecas.',
+      correct:'SEMILLA',
+      just:'El término correcto es SEMILLA: fija el generador pseudoaleatorio y hace repetibles la inicialización de centroides y cualquier muestreo. No sustituye a las demás medidas de reproducibilidad: la huella SHA-256 de los archivos prueba la identidad de la entrada, y dtype=str evita variaciones de tipo; pero sin semilla, dos ejecuciones sobre datos idénticos podrían asignar clientes a grupos distintos.'
+    },
+    { before:'Las categorías de producto llegan con mayúsculas dispares («snacks», «carnes y embutidos»). Para uniformarlas sin dañar la conjunción, se usa el método ',
+      after:', que deja «Carnes y embutidos» y no «Carnes Y Embutidos».',
+      correct:'capitalize',
+      just:'El término correcto es capitalize: pasa a mayúscula solo la primera letra y deja el resto en minúscula, de modo que la conjunción «y» se conserva. La alternativa title() capitaliza cada palabra y produciría «Carnes Y Embutidos», una categoría distinta para el motor, que partiría un mismo grupo en dos y alteraría el resumen por categoría. Es una trampa de detalle que solo se detecta al ejecutar y comparar los resultados.'
+    },
+    { before:'Para analizar la serie temporal sin huecos, el modelo incluye una dimensión calendario denominada ',
+      after:', con una fila por cada día desde el 1 de enero de 2024 hasta el 31 de octubre de 2026, es decir, 1.035 filas.',
+      correct:'dim_fecha',
+      just:'El término correcto es dim_fecha: un calendario completo, no solo las fechas con ventas, de modo que los días sin movimiento existan y los promedios, las comparaciones interanuales y los fines de semana se calculen sobre el calendario real. El conteo 1.035 se comprueba con aritmética: 366 días de 2024 (bisiesto) más 365 de 2025 más 304 de enero a octubre de 2026. Otras tablas del modelo estrella (dim_cliente, dim_producto, dim_vendedor y dim_sucursal) describen entidades, no el tiempo.'
+    },
+    { before:'Después de sobrescribir la tabla Silver en Delta, la evidencia de versionamiento que A2 exige se obtiene ejecutando la instrucción ',
+      after:' sobre la tabla, que lista las versiones, las operaciones y las marcas de tiempo.',
+      correct:'DESCRIBE HISTORY',
+      just:'El término correcto es DESCRIBE HISTORY: es la sentencia que A2 muestra para auditar el historial de Delta (time travel). No es suficiente contar filas, pues el conteo prueba el contenido actual pero no el pasado de la tabla. Ninguno de los demás términos del banco se relaciona con el historial de versiones: SEMILLA fija aleatoriedad, cuarentena aparta filas y dim_fecha es una dimensión de tiempo del modelo.'
+    }
+  ]
+},
+{ id:3, title:'Caso numérico: efecto de cada decisión de limpieza y KPI del negocio', icon:'📊', color:'green', type:'multiple',
+  desc:'Cifras reproducidas sobre los 5 CSV crudos · retención, cuarentena, fechas, atípicos, deduplicación, comodines, Pareto, crecimiento, ticket y margen',
+  questions:[
+    { text:'El flujo de curación parte de 62.930 filas crudas de ventas (Bronze), elimina 930 duplicados exactos y deja 61.795 líneas válidas en Silver tras enviar 205 a cuarentena. Siguiendo la definición de A2 («Silver entre Bronze, por cien»), ¿cuál es la tasa de retención y qué error comete quien informa otra?',
+      opts:['99,67 por ciento; es la cifra correcta, pues el denominador debe ser el número de filas únicas.','98,20 por ciento; el denominador es Bronze (62.930). Quien informa 99,67 por ciento divide entre las 62.000 únicas y oculta los duplicados descartados; quien informa 98,52 por ciento solo descuenta los duplicados y olvida la cuarentena.','98,52 por ciento; la cuarentena no debe contarse porque esas filas no se eliminan, solo se aíslan.','97,03 por ciento; porque el denominador debe incluir además las filas de las tablas auxiliares de clientes y productos.'],
+      correct:1,
+      just:'Correcta la segunda: 61.795 entre 62.930 da 98,20 por ciento. La tasa de A2 compara Silver con Bronze, de modo que el denominador es el volumen íntegro recibido. La primera usa un denominador ya depurado (62.000) y solo mide la retención posterior a la deduplicación (99,67 por ciento), con lo que embellece el resultado. La tercera (1 menos 930 entre 62.930 es 98,52 por ciento) ignora las 205 líneas apartadas: aunque se conservan en la cuarentena, no están en Silver. La cuarta mezcla tablas de granos distintos; la retención se calcula sobre la misma tabla en ambas capas.'
+    },
+    { text:'El detector de atípicos por producto, con un factor de 3 sobre el rango intercuartílico, señala 26 líneas de cantidad extrema, pero solo 25 líneas valen 9999 unidades. Un colega sospecha de un error de conteo. ¿Qué explicación es la correcta?',
+      opts:['Hay un error: el detector cuenta dos veces una línea duplicada, por lo que el resultado correcto sería 25.','La línea restante es una cantidad de 17 unidades del producto P027, atípica respecto de la distribución de su propio producto; el criterio opera por producto y no con un umbral global, de ahí que un corte fijo en 500 no la hubiera detectado.','La línea restante es una cantidad negativa, que el detector clasifica también como extrema.','El detector suma la cantidad nula a las atípicas, pues una cantidad ausente se trata como extrema.'],
+      correct:1,
+      just:'Correcta la segunda: los cuartiles se calculan producto por producto, y en P027 una línea de 17 unidades excede Q3 más 3 veces el rango intercuartílico de ese producto; un umbral fijo en 500 retiene 61.796 líneas (una más) porque no la ve. La primera es falsa: los duplicados exactos ya se eliminaron antes (62.000 únicas), y no hay doble conteo. La tercera confunde dos motivos de cuarentena: las 60 cantidades no positivas se cuentan por separado (cantidad no positiva), no como extremas. La cuarta es inexacta: no existen cantidades nulas tras la conversión (cero nulas), de manera que no hay nada que sumar.'
+    },
+    { text:'Un practicante convierte las fechas con un único formato (año-mes-día) y descarta las filas que quedan sin fecha. Con esa simplificación, la venta neta total desciende de unos Bs 10,71 millones a unos Bs 8,78 millones y el número de facturas, de 20.667 a 20.536. ¿Qué conclusión técnica es correcta?',
+      opts:['Es una depuración legítima: las filas sin fecha ISO son defectuosas y su ausencia no sesga el análisis.','Se pierde alrededor de 18 por ciento de las líneas y de la venta, incluyendo 131 facturas completas, por un defecto de formato y no de validez; lo correcto es aplicar los cuatro patrones de fecha con formatos explícitos para recuperarlas.','Se pierde menos del 1 por ciento, ya que la mayoría de las fechas están en formato ISO.','El efecto es neutro porque las facturas restantes mantienen la misma proporción por sucursal.'],
+      correct:1,
+      just:'Correcta la segunda: 11.160 de 62.000 líneas únicas (18,0 por ciento) tienen fecha en otro patrón (día/mes/año, día-mes-año de dos dígitos o año.mes.día); descartarlas es perder 18 por ciento de la venta neta (de 10,71 a 8,78 millones) y 131 facturas completas por un asunto de formato, no de validez del dato. Los cuatro patrones, aplicados con formatos explícitos, recuperan todas las fechas (rango del 1 de enero de 2024 al 31 de octubre de 2026). La primera trata consistencia como invalidez. La tercera subestima groseramente el efecto: que el patrón ISO sea mayoritario (50.840 de 62.000) no impide que el resto sea voluminoso. La cuarta es una afirmación sin evidencia: nada garantiza proporcionalidad por sucursal.'
+    },
+    { text:'Un analista omite el control de atípicos por producto «para no perder datos». Las 25 líneas de 9999 unidades permanecen en la tabla de hechos. ¿Cuál es el efecto sobre la venta neta total y qué lección enseña?',
+      opts:['Aumenta de unos Bs 10,71 millones a unos Bs 18,31 millones (alrededor de 71 por ciento): un puñado de líneas imposibles de 9999 unidades inflaría de manera engañosa el KPI principal, por lo que debe aplicarse el control antes de agregar.','Aumenta menos de 1 por ciento, porque solo son 25 líneas entre más de 60.000.','Disminuye, ya que las cantidades altas implican descuentos mayores.','No cambia, porque la venta neta se calcula con la cantidad promedio por producto.'],
+      correct:0,
+      just:'Correcta la primera: la variante sin control de atípicos conserva 61.821 líneas y arroja una venta neta cercana a Bs 18,31 millones frente a Bs 10,71 millones: un incremento de alrededor de 71 por ciento por apenas 26 líneas. La lección es que la proporción de filas no equivale a la proporción de efecto cuando el error es de magnitud (9999 frente a un promedio de unas 5 unidades). La segunda razona con la frecuencia de filas, no con la magnitud. La tercera inventa una relación entre cantidad y descuento que los datos no sustentan; el descuento es un porcentaje independiente. La cuarta describe un cálculo inexistente: la venta neta se calcula línea por línea (cantidad por precio por uno menos el descuento).'
+    },
+    { text:'Un estudiante traslada la regla R7 de A2 (deduplicar por factura, producto y cliente) a los datos de Tierra Oriental en lugar de usar el identificador de línea. Resultado: 58.564 líneas tras deduplicar y una venta neta cercana a Bs 10,13 millones. ¿Cuál es la lectura correcta?',
+      opts:['Es una mejora: elimina más duplicados y la venta es más prudente.','Elimina 3.436 líneas legítimas adicionales (62.000 menos 58.564): en este caso dos líneas de una misma factura pueden tener el mismo producto y cliente sin ser repetición, y el identificador de línea es la clave del grano; la regla de A2 se concibió para un conjunto sin esa clave.','Es indiferente, porque las dos reglas producen siempre el mismo resultado.','Es incorrecto solo porque la regla R7 debería incluir también la fecha y la sucursal.'],
+      correct:1,
+      just:'Correcta la segunda: la clave del grano en Tierra Oriental es id_linea; la regla R7 (factura, producto, cliente) trata como repetidas líneas que comparten esos tres campos pero son distintas, por lo que retira 3.436 líneas válidas y subestima la venta en unos Bs 0,58 millones (alrededor de 5,4 por ciento). La primera confunde agresividad con calidad: eliminar más no equivale a limpiar mejor. La tercera es falsa: las cifras difieren de modo nítido (58.564 frente a 62.000). La cuarta mantiene el error de fondo: agregar columnas a una clave heurística no sustituye a un identificador de línea que ya existe.'
+    },
+    { text:'Un compañero sostiene que omitir la deduplicación de filas idénticas «no cambia nada importante», pues el número de facturas permanece en 20.667. Con los datos del caso, ¿qué se puede afirmar?',
+      opts:['Tiene razón: si las facturas no varían, las ventas tampoco.','El número de facturas no es sensible a las repeticiones de líneas, pero la venta neta sí: sin deduplicar quedan 62.721 líneas y la venta sube unos Bs 163 mil (alrededor de 1,5 por ciento), un efecto que además infla la frecuencia en RFM.','La venta neta disminuye, porque los duplicados traen descuento doble.','El efecto es de 930 bolivianos, uno por cada fila repetida.'],
+      correct:1,
+      just:'Correcta la segunda: el recuento de facturas distintas no detecta la duplicación porque la misma factura aparece en ambas copias; en cambio, la venta neta pasa de Bs 10,71 a unos Bs 10,87 millones (más 1,5 por ciento, unos Bs 163 mil). Por eso A2 justifica la regla de deduplicación diciendo que un duplicado exacto infla ventas y frecuencia. La primera usa un indicador insensible al defecto como prueba de su ausencia. La tercera inventa un descuento doble inexistente. La cuarta confunde conteo de filas con importe en bolivianos.'
+    },
+    { text:'Se compara conservar las 349 líneas sin vendedor (asignadas a V00) con eliminarlas. La variante estricta deja 61.446 líneas y una venta neta unos Bs 62.700 menor. ¿Cuál es el razonamiento correcto?',
+      opts:['Eliminar es preferible: una venta sin vendedor no tiene valor analítico.','Conservar con V00 mantiene el ingreso real (la venta existió) y localiza el problema en un grupo que se puede monitorear; eliminarlas subestima la venta total en unos 0,59 por ciento y esconde la deficiencia del registro.','Es preferible imputar un vendedor al azar para que cada línea tenga un responsable.','Es preferible reemplazar por el vendedor con más ventas, para no crear categorías nuevas.'],
+      correct:1,
+      just:'Correcta la segunda: la falta de vendedor es un defecto del registro, no una anulación de la venta; el comodín V00 conserva el ingreso y deja visible la brecha de captura. Eliminar resta unos Bs 62.700 (0,59 por ciento) y distorsiona todos los totales para resolver un asunto que solo afecta al análisis por vendedor. La tercera fabrica información: asignar al azar atribuye comisiones y desempeño a quien no los generó. La cuarta es un sesgo sistemático: concentra ventas ficticias en el vendedor líder y exagera su desempeño.'
+    },
+    { text:'Las ventas contienen el cliente C99999, ausente del maestro (200 líneas, unos Bs 32 mil de venta). Un analista opta por eliminarlas para conservar «integridad referencial». ¿Cuál es la mejor práctica y por qué?',
+      opts:['Eliminarlas es correcto: es la única manera de cumplir la integridad referencial.','Asignarlas al miembro comodín C-DESCONOCIDO (llave sustituta cero): se cumple la integridad referencial sin perder la venta, y se deja constancia de la incidencia para su revisión.','Reasignarlas al cliente con más compras, para que no aparezca ningún registro desconocido.','Crear un cliente nuevo por cada línea huérfana con datos inventados.'],
+      correct:1,
+      just:'Correcta la segunda: el miembro comodín (SK 0) satisface la restricción referencial y conserva el ingreso (eliminar quitaría 200 líneas y unos Bs 32 mil). La primera es un falso dilema: la integridad referencial no exige destruir hechos. La tercera falsea el análisis de clientes y de RFM, al engordar artificialmente al mejor comprador. La cuarta inventa datos personales y multiplica entidades ficticias. Cuando el volumen de huérfanos crece, el monitoreo debe notificarse al negocio; no se resuelve borrando.'
+    },
+    { text:'El producto P018 (Maní confitado, 200 g; categoría Snacks) tiene precio de lista de Bs 10,56 y costo unitario ausente. El margen mediano de la categoría Snacks, calculado con los productos que sí tienen costo, es 23,08 por ciento. ¿Qué costo se imputa y qué cuidado metodológico corresponde?',
+      opts:['Bs 8,12; se aplica el margen mediano al precio de lista (10,56 por 0,7692) y se marca el costo como imputado.','Bs 2,44; se multiplica el precio por el margen, olvidando que el costo es el complemento del margen.','Bs 9,43; se emplea el margen mediano de Abarrotes, por ser la categoría con más productos.','Bs 10,56; se iguala el costo al precio de lista para evitar márgenes negativos.'],
+      correct:0,
+      just:'Correcta la primera: costo igual a precio por (1 menos margen) es 10,56 por 0,7692, es decir, Bs 8,12; además, conviene marcar la imputación para que el margen de esa línea no se presente como dato observado. La segunda confunde margen con costo: 10,56 por 0,2308 es el margen en bolivianos, no el costo. La tercera usa el margen mediano de otra categoría (10,71 por ciento), lo que desconoce que el margen difiere por categoría (de 10,71 por ciento en Abarrotes a 23,08 por ciento en Snacks). La cuarta anula el margen de ese producto (cero), subestimando artificialmente la rentabilidad.'
+    },
+    { text:'En el caso de A1 (retail del Reino Unido) el 20 por ciento superior de clientes aportaba 79 por ciento de la venta y el 1 por ciento, 43 por ciento. En Tierra Oriental, con 2.537 clientes con ventas, el 20 por ciento superior aporta 59,6 por ciento, el 10 por ciento aporta 46,2 por ciento, el 1 por ciento aporta 22,9 por ciento, y se necesita 44,3 por ciento de los clientes para llegar al 80 por ciento de la venta. ¿Cuál es la lectura rigurosa?',
+      opts:['Se cumple el principio de Pareto: la concentración es prácticamente igual a la del caso británico.','La cartera de Tierra Oriental es bastante menos concentrada: el 80/20 no se verifica (se requiere 44,3 por ciento de clientes para 80 por ciento de venta), de modo que una estrategia basada solo en un puñado de grandes clientes sería mal fundada; Pareto es una regularidad empírica, no una ley.','La concentración es mayor que en el caso británico, porque 22,9 por ciento del 1 por ciento es una cifra alta.','Las cifras son incomparables, porque el caso británico usa libras y el nuestro bolivianos, por lo que ninguna conclusión es posible.'],
+      correct:1,
+      just:'Correcta la segunda: 59,6 por ciento frente a 79 por ciento (20 por ciento superior) y 22,9 por ciento frente a 43 por ciento (1 por ciento superior) muestran una concentración menor; además, hacen falta 44,3 por ciento de los clientes para alcanzar el 80 por ciento de la venta. Pareto describe una regularidad frecuente, no una ley universal. La primera ignora los números. La tercera lee al revés la comparación: una cifra de 22,9 es menor que 43. La cuarta confunde unidad monetaria con proporción: las comparaciones se hacen con porcentajes, que son adimensionales.'
+    },
+    { text:'La venta neta de 2026 (enero a octubre) es de Bs 3.496.731; en el mismo período de 2025 fue de Bs 3.145.984; el año 2025 completo sumó Bs 3.881.041 y el año 2024 completo Bs 3.332.283. El tablero debe mostrar el crecimiento interanual. ¿Qué cifra es la correcta y cuál es el error de las demás?',
+      opts:['Menos 9,9 por ciento, comparando los diez meses de 2026 con el año 2025 completo; el error es confrontar períodos de distinta duración.','Más 4,9 por ciento, comparando con 2024, que no es el año inmediato anterior.','Más 11,1 por ciento, comparando enero a octubre de 2026 con enero a octubre de 2025; es el único cotejo homogéneo (mismo período, mismo calendario).','Más 8,1 por ciento, proyectando los diez meses a doce por simple proporción, lo que ignora la estacionalidad.'],
+      correct:2,
+      just:'Correcta la tercera: 3.496.731 frente a 3.145.984 da más 11,1 por ciento; el crecimiento interanual debe cotejar períodos equivalentes. La primera compara 10 meses contra 12 y produce una caída ficticia (menos 9,9 por ciento). La segunda elige un año base equivocado (2024) y da más 4,9 por ciento. La cuarta anualiza proporcionalmente (3.496.731 por 12 entre 10 equivale a unos 4,20 millones frente a 3,88 millones, más 8,1 por ciento) y supone una estacionalidad uniforme que los datos no garantizan. Cada una de las tres incorrectas es un error clásico de diseño de KPI que cambia el signo o la magnitud del titular.'
+    },
+    { text:'Con 20.667 facturas, 61.795 líneas y una venta neta de unos Bs 10,71 millones, la gerencia pide el «ticket promedio». ¿Cuál es la definición y el valor adecuados?',
+      opts:['Unos Bs 173, dividiendo la venta entre el número de líneas, pues la línea es el grano de la tabla de hechos.','Unos Bs 518, dividiendo la venta entre el número de facturas distintas (el ticket es el valor medio por transacción de compra).','Unos Bs 4.222, dividiendo la venta entre los 2.537 clientes con compras.','Unos Bs 10,71 millones, porque el ticket es el total vendido.'],
+      correct:1,
+      just:'Correcta la segunda: el ticket promedio es el importe medio por factura (10,71 millones entre 20.667 es unos Bs 518). La primera es la trampa del grano: Bs 173 es el valor medio por línea, un indicador válido pero distinto (valor por producto vendido). La tercera calcula la venta por cliente (otro KPI, que también tiene su lugar). La cuarta confunde un total con un promedio. Contar facturas exige contar nro_factura distintas, no filas, porque cada factura abarca varias líneas.'
+    },
+    { text:'El margen bruto total es de unos Bs 1,15 millones (10,7 por ciento de la venta neta). Por categoría, Snacks alcanza 19 por ciento y Abarrotes y Carnes y embutidos 8 por ciento. Bebidas obtiene unos Bs 257,6 mil de margen, Abarrotes unos Bs 231 mil y Snacks unos Bs 195 mil. ¿Qué interpretación evita el error de confundir porcentaje con contribución?',
+      opts:['Snacks es la categoría más importante, porque tiene el mayor margen porcentual y, por tanto, el mayor margen en bolivianos.','Bebidas es la categoría que más margen absoluto aporta (unos Bs 257,6 mil) aunque no tenga el mayor porcentaje; Snacks lidera el porcentaje (19 por ciento) con menor aporte absoluto, y Abarrotes, con 8 por ciento, aún aporta más que Snacks por su volumen.','Abarrotes debe eliminarse porque su margen de 8 por ciento es inferior al promedio general de 10,7 por ciento.','Carnes y embutidos y Abarrotes tienen igual contribución absoluta porque comparten el mismo porcentaje de margen.'],
+      correct:1,
+      just:'Correcta la segunda: el margen absoluto depende del porcentaje y del volumen; Bebidas (12 por ciento sobre una venta de unos Bs 2,13 millones) aporta más que Snacks (19 por ciento sobre unos Bs 1,02 millones) y que Abarrotes (8 por ciento sobre unos Bs 2,95 millones, unos Bs 231 mil). La primera infiere el absoluto desde el porcentaje, error de composición. La tercera propone una decisión drástica sin considerar que Abarrotes aporta unos Bs 231 mil de margen y probablemente arrastra tráfico de clientes. La cuarta supone que igual porcentaje implica igual aporte, ignorando que los volúmenes difieren (Abarrotes unos Bs 2,95 millones frente a Carnes unos Bs 2,33 millones).'
+    },
+    { text:'La dimensión cliente se depura fusionando duplicados. El maestro trae 2.710 filas, 220 de las cuales comparten cédula una vez normalizada a solo dígitos (se descarta el sufijo del departamento), es decir, 110 duplicados; ningún grupo mezcla sufijos distintos. Una alternativa sería fusionar por nombre normalizado, que señala 229 coincidencias. ¿Qué criterio es el adecuado y cuál es el resultado?',
+      opts:['Fusionar por nombre normalizado, porque el nombre es más legible que la cédula; resultan unos 2.480 clientes.','Fusionar por cédula normalizada (solo dígitos), conservando el menor identificador como maestro: quedan 2.600 clientes, y se evita unir homónimos que el criterio por nombre sí fusionaría.','No fusionar nada: cada identificador es un cliente distinto aunque comparta cédula.','Fusionar por razón social, ya que es el dato comercial más estable.'],
+      correct:1,
+      just:'Correcta la segunda: la cédula normalizada es un identificador de persona; 2.710 menos 110 da 2.600 clientes, y como ningún grupo mezcla sufijos departamentales distintos, la fusión es segura. La coincidencia por nombre produce 229 casos, más del doble de los 110 reales, porque une homónimos distintos y falsea el recuento de clientes. La primera valora la legibilidad sobre la identidad. La tercera deja duplicados que inflan la base y distorsionan la frecuencia y la recompra. La cuarta es un identificador comercial (una razón social puede repetirse en tiendas distintas, como «Tienda Gutiérrez»).'
+    },
+    { text:'El cuaderno consolida 22 variantes textuales de forma de pago en cinco categorías. Por valor de venta, Efectivo suma 37,0 por ciento, QR 27,4 por ciento, Transferencia 15,4 por ciento, Crédito a 15 días 12,2 por ciento y Crédito a 30 días 7,9 por ciento. ¿Qué proporción de la venta se realizó a crédito y cuál es el error de otras cifras?',
+      opts:['27,4 por ciento, que es la categoría con segundo lugar y por tanto representa el crédito.','12,2 por ciento, que es el crédito más usado.','20,2 por ciento (12,24 más 7,94, por valor); la medición por número de líneas da 20,0 por ciento y suele confundirse con el valor, aunque son indicadores distintos.','37,0 por ciento, porque el efectivo equivale al crédito inmediato.'],
+      correct:2,
+      just:'Correcta la tercera: el crédito agrega las dos modalidades (15 y 30 días): 12,24 más 7,94 da 20,18 por ciento, unos 20,2 del valor. Por número de líneas la proporción es 20,0 por ciento (7.461 más 4.879 de 61.795), un indicador cercano pero diferente; el KPI de «ventas a crédito» se define por valor. La primera toma una categoría que no es de crédito (QR es pago electrónico). La segunda olvida sumar la otra modalidad. La cuarta es inconsistente con la definición: el efectivo se cobra al contado. Sin la consolidación previa de las 22 variantes (por ejemplo, «efvo.», «cash» y «Efectivo »), los porcentajes quedarían fragmentados y subestimados.'
+    },
+    { text:'Por sucursal, la venta neta es de unos Bs 5,25 millones en Norte, Bs 3,93 millones en Abasto y Bs 1,53 millones en Central Cañoto. ¿Qué afirmación es la correcta?',
+      opts:['Central Cañoto aporta aproximadamente un tercio de la venta total.','Norte aporta cerca de la mitad (49 por ciento), Abasto cerca de 37 por ciento y Central Cañoto cerca de 14 por ciento; la suma recompone los Bs 10,71 millones.','Abasto es la sucursal principal porque su zona homónima registra una de las mayores ventas.','Las tres sucursales aportan por igual, pues los tres números son del mismo orden de magnitud.'],
+      correct:1,
+      just:'Correcta la segunda: 5,25 entre 10,71 da unos 49 por ciento; 3,93 entre 10,71, unos 37 por ciento; 1,53 entre 10,71, unos 14 por ciento, y la suma reproduce el total, una comprobación de integridad que debe hacerse siempre. La primera exagera la participación de Cañoto (14 por ciento, no 33). La tercera confunde zona de cliente con sucursal: son dimensiones distintas, y la venta de una zona puede atenderse desde cualquier sucursal. La cuarta confunde orden de magnitud con igualdad: 5,25 y 1,53 difieren en más de tres veces.'
+    }
+  ]
+}
+];
+
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+const QUESTIONS_PER_SECTION = 7; // preguntas mostradas por bloque en cada intento (se sortean de un pool mas grande)
+const TOTAL_QUESTIONS = QUESTIONS_PER_SECTION * 4; // debe coincidir con el numero de objetos en SECTIONS
+const EXAM_SECONDS = 120*60;
+const LOCK_STORAGE_KEY = 'upds_inv0170_parcial_avanzado_2026_v1'; // clave unica de localStorage: distinta por cada examen/materia para no chocar con otros examenes abiertos en el mismo navegador
+
+function buildActiveSection(sec) {
+  const s = JSON.parse(JSON.stringify(sec));
+  // Banco de preguntas ampliado: se toma una muestra aleatoria de N preguntas
+  // del pool completo de la seccion en cada intento, para que el examen
+  // varie entre estudiantes e intentos.
+  const n = Math.min(QUESTIONS_PER_SECTION, s.questions.length);
+  s.questions = shuffle(s.questions).slice(0, n);
+  if (s.type === 'multiple') {
+    s.questions = s.questions.map(q => {
+      const indexed = q.opts.map((opt, i) => ({ opt, i }));
+      const sh = shuffle(indexed);
+      const newCorrect = sh.findIndex(x => x.i === q.correct);
+      return { ...q, opts: sh.map(x => x.opt), correct: newCorrect };
+    });
+  } else if (s.type === 'multiselect') {
+    s.questions = s.questions.map(q => {
+      const indexed = q.opts.map((opt, i) => ({ opt, i }));
+      const sh = shuffle(indexed);
+      const correctSet = new Set(q.correct);
+      const newCorrect = sh.reduce((acc, x, ni) => { if (correctSet.has(x.i)) acc.push(ni); return acc; }, []);
+      return { ...q, opts: sh.map(x => x.opt), correct: newCorrect };
+    });
+  } else if (s.type === 'dragdrop') {
+    // El banco de palabras se construye dinamicamente a partir de las
+    // preguntas efectivamente seleccionadas en este intento (no de un
+    // listado estatico), para que coincida siempre 1 a 1 con los espacios
+    // en blanco mostrados.
+    s.bankWords = shuffle(s.questions.map(q => q.correct));
+  }
+  return s;
+}
+
+let ACTIVE_SECTIONS = [];
+
+const CLRS = {
+  blue:  {tab:'#007AFF', badge:'bg-blue-100 text-blue-700'},
+  purple:{tab:'#AF52DE', badge:'bg-purple-100 text-purple-700'},
+  green: {tab:'#34C759', badge:'bg-green-100 text-green-700'},
+  orange:{tab:'#FF9500', badge:'bg-orange-100 text-orange-700'},
+  teal:  {tab:'#5AC8FA', badge:'bg-cyan-100 text-cyan-700'},
+  red:   {tab:'#FF3B30', badge:'bg-red-100 text-red-700'},
+};
+
+let state = {
+  screen: 'intake',
+  student: null,
+  current: 0,
+  answers: null,
+  submitted: false,
+  seconds: EXAM_SECONDS,
+  timerInterval: null,
+  selectedChip: null,
+  consent: false,
+  lockRecord: null,
+  veriCode: null,
+  annulled: false,
+  annulReason: null,
+};
+
+function formatDateTimeLocal(date) {
+  const pad = n => String(n).padStart(2, '0');
+  return `${date.getFullYear()}-${pad(date.getMonth()+1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
+}
+
+function formatDateTimeForDisplay(value) {
+  const date = value ? new Date(value) : new Date();
+  return date.toLocaleString('es-BO', {dateStyle:'full', timeStyle:'short'});
+}
+
+// ---------- Mecanismo de bloqueo por correo: un intento por correo, registrado en este navegador ----------
+function normalizeEmail(e){ return (e||'').trim().toLowerCase(); }
+
+function getLocks(){
+  try {
+    const raw = localStorage.getItem(LOCK_STORAGE_KEY);
+    return raw ? JSON.parse(raw) : {};
+  } catch(err){ return {}; }
+}
+
+function saveLocks(locks){
+  try { localStorage.setItem(LOCK_STORAGE_KEY, JSON.stringify(locks)); } catch(err){}
+}
+
+function getLockForEmail(email){
+  const key = normalizeEmail(email);
+  if(!key) return null;
+  const locks = getLocks();
+  return locks[key] || null;
+}
+
+// Hash no criptografico (variante cyrb53) para generar un codigo de verificacion corto y estable,
+// sin depender de crypto.subtle (bloqueado en algunos navegadores bajo file://).
+function simpleHash(str){
+  let h1 = 0xdeadbeef ^ str.length, h2 = 0x41c6ce57 ^ str.length;
+  for (let i=0;i<str.length;i++){
+    const ch = str.charCodeAt(i);
+    h1 = Math.imul(h1 ^ ch, 2654435761);
+    h2 = Math.imul(h2 ^ ch, 1597334677);
+  }
+  h1 = Math.imul(h1 ^ (h1>>>16), 2246822507) ^ Math.imul(h2 ^ (h2>>>13), 3266489909);
+  h2 = Math.imul(h2 ^ (h2>>>16), 2246822507) ^ Math.imul(h1 ^ (h1>>>13), 3266489909);
+  return 4294967296 * (2097151 & h2) + (h1>>>0);
+}
+
+function generateSubmissionCode(email, tsIso){
+  const raw = normalizeEmail(email) + '|' + tsIso;
+  const num = simpleHash(raw);
+  return 'ASI0400-' + num.toString(36).toUpperCase().slice(0,8);
+}
+
+function renderLockBanner(record){
+  const banner = document.getElementById('lock-banner');
+  if(!banner) return;
+  if(!record){ banner.style.display='none'; banner.innerHTML=''; return; }
+  banner.style.display='';
+  banner.className = 'mt-2 rounded-xl px-3 py-2.5 text-xs leading-relaxed bg-orange-50 border border-orange-300 text-orange-800';
+  banner.innerHTML = '<strong>&#128274; Este correo ya registro una respuesta</strong><br>Entregado el ' + record.submittedAtDisplay + ' &middot; Codigo: <strong>' + record.code + '</strong><br>Esa respuesta es tu nota final. Toca el boton de abajo para volver a verla.';
+}
+
+function handleStartClick(){
+  if(state.lockRecord){
+    loadLockedResult(state.lockRecord);
+  } else {
+    startExam();
+  }
+}
+
+function loadLockedResult(record){
+  ACTIVE_SECTIONS = record.activeSections;
+  state.student = record.student;
+  state.answers = record.answers;
+  state.submitted = true;
+  state.veriCode = record.code;
+  state.annulled = !!record.annulled;
+  state.annulReason = record.annulReason || null;
+  document.getElementById('intake-screen').style.display = 'none';
+  computeAndRenderResults();
+}
+
+function checkIntake() {
+  const n = document.getElementById('inp-nombre').value.trim();
+  const c = document.getElementById('inp-codigo').value.trim();
+  const eEl = document.getElementById('inp-email');
+  const e = eEl ? eEl.value.trim() : '';
+  // Validación permisiva: acepta cualquier texto con @ y al menos un punto después
+  const emailOk = e.length > 0 && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e);
+  const f = document.getElementById('inp-fecha').value;
+  const consentInput = document.getElementById('inp-consent');
+  state.consent = consentInput ? consentInput.checked : state.consent;
+
+  const lockRec = emailOk ? getLockForEmail(e) : null;
+  state.lockRecord = lockRec;
+  renderLockBanner(lockRec);
+
+  const btn = document.getElementById('btn-start');
+  if (!btn) return;
+
+  if (lockRec) {
+    // El correo ya entrego una respuesta: se habilita el boton unicamente para VER esa nota final.
+    btn.disabled = false;
+    btn.style.background = '#FF9500';
+    btn.style.color = '#fff';
+    btn.className = 'w-full py-4 rounded-2xl font-bold text-base transition-all active:scale-95 cursor-pointer shadow-md';
+    btn.textContent = 'Ver mi resultado ya registrado ▶';
+    return;
+  }
+
+  const ok = n && c && emailOk && f && state.consent;
+  if (ok) {
+    btn.disabled = false;
+    btn.style.background = '#007AFF';
+    btn.style.color = '#fff';
+    btn.className = 'w-full py-4 rounded-2xl font-bold text-base transition-all active:scale-95 cursor-pointer shadow-md';
+    btn.textContent = 'Comenzar Examen ▶';
+  } else {
+    btn.disabled = true;
+    btn.style.background = '';
+    btn.style.color = '';
+    btn.className = 'w-full py-4 rounded-2xl font-bold text-base bg-gray-200 text-gray-400 transition-all cursor-not-allowed';
+    btn.textContent = 'Completar todos los campos para continuar';
+  }
+}
+
+function toggleConsent(checked) {
+  state.consent = typeof checked === 'boolean' ? checked : !state.consent;
+  const input = document.getElementById('inp-consent');
+  if (input) input.checked = state.consent;
+  const box = document.getElementById('consent-box');
+  if (box) {
+    if (state.consent) {
+      box.style.background = '#007AFF';
+      box.style.borderColor = '#007AFF';
+      box.innerHTML = '<svg width="12" height="9" viewBox="0 0 12 9" fill="none"><path d="M1 4L4.5 7.5L11 1" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+    } else {
+      box.style.background = '';
+      box.style.borderColor = '';
+      box.innerHTML = '';
+    }
+  }
+  checkIntake();
+}
+
+function initializeIntakeScreen() {
+  const intakeLogo = document.getElementById('intake-logo');
+  if (intakeLogo) intakeLogo.src = LOGO_DATA_URI;
+  const hdLogo = document.getElementById('hd-logo');
+  if (hdLogo) hdLogo.src = LOGO_DATA_URI;
+  document.getElementById('inp-fecha').value = formatDateTimeLocal(new Date());
+  checkIntake();
+  // Forzar re-evaluación después de que el browser procese todos los valores iniciales
+  setTimeout(checkIntake, 100);
+  var _poll = setInterval(function() {
+    var el = document.getElementById('intake-screen');
+    if (!el || el.style.display === 'none') { clearInterval(_poll); return; }
+    checkIntake();
+  }, 250);
+}
+
+// ---------- Monitor de integridad: anula el examen si el estudiante cambia de pestaña/ventana ----------
+let integrityMonitorActive = false;
+
+function startIntegrityMonitor(){
+  integrityMonitorActive = true;
+  document.addEventListener('visibilitychange', handleVisibilityChange);
+  window.addEventListener('blur', handleWindowBlur);
+}
+
+function stopIntegrityMonitor(){
+  integrityMonitorActive = false;
+  document.removeEventListener('visibilitychange', handleVisibilityChange);
+  window.removeEventListener('blur', handleWindowBlur);
+}
+
+function handleVisibilityChange(){
+  if(!integrityMonitorActive || state.submitted) return;
+  if(document.hidden){
+    annulExam('Cambiaste de pestaña o minimizaste el navegador durante el examen.');
+  }
+}
+
+function handleWindowBlur(){
+  if(!integrityMonitorActive || state.submitted) return;
+  // Pequeño margen para no disparar en falso por un enfoque interno de la propia pagina;
+  // se confirma que la ventana realmente perdio el foco antes de anular.
+  setTimeout(function(){
+    if(!integrityMonitorActive || state.submitted) return;
+    if(document.hidden || !document.hasFocus()){
+      annulExam('Saliste de la ventana del examen (cambio de aplicacion o pestaña) durante el examen.');
+    }
+  }, 50);
+}
+
+function annulExam(reason){
+  if(state.submitted) return;
+  stopIntegrityMonitor();
+  clearInterval(state.timerInterval);
+  state.submitted = true;
+  state.annulled = true;
+  state.annulReason = reason;
+  saveLockRecord();
+  computeAndRenderResults();
+}
+
+function startExam() {
+  const n = document.getElementById('inp-nombre').value.trim();
+  const c = document.getElementById('inp-codigo').value.trim();
+  const e = document.getElementById('inp-email').value.trim();
+  const f = document.getElementById('inp-fecha').value;
+  const emailOk = e.length > 0 && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e);
+  if (!n||!c||!emailOk||!f||!state.consent) return;
+
+  // Verificacion de respaldo: si el correo ya registro una respuesta, no se inicia un examen nuevo.
+  const existingLock = getLockForEmail(e);
+  if (existingLock) { state.lockRecord = existingLock; loadLockedResult(existingLock); return; }
+
+  state.student = { nombre:n, codigo:c, email:e, startTime: formatDateTimeForDisplay(f) };
+  ACTIVE_SECTIONS = shuffle(SECTIONS).map(buildActiveSection);
+  state.answers = ACTIVE_SECTIONS.map(sec => {
+    if (sec.type === 'multiselect') {
+      return Array(sec.questions.length).fill(null).map(() => []);
+    } else {
+      return Array(sec.questions.length).fill(null);
+    }
+  });
+
+  document.getElementById('hd-student').textContent = `${n} · ${c}`;
+  document.getElementById('intake-screen').style.display = 'none';
+  document.getElementById('app-shell').style.display = '';
+  startTimer();
+  startIntegrityMonitor();
+  render();
+}
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initializeIntakeScreen);
+} else {
+  initializeIntakeScreen();
+}
+
+function startTimer() {
+  state.timerInterval = setInterval(()=>{
+    state.seconds--;
+    const m = String(Math.floor(state.seconds/60)).padStart(2,'0');
+    const s = String(state.seconds%60).padStart(2,'0');
+    const el = document.getElementById('timer');
+    if (el) { el.textContent=`${m}:${s}`; if(state.seconds<=300) el.classList.add('text-ios-red','font-black'); }
+    if (state.seconds<=0){ clearInterval(state.timerInterval); confirmSubmit(true); }
+  },1000);
+}
+
+function countAnswered(){
+  let n=0;
+  ACTIVE_SECTIONS.forEach((sec,si)=>{
+    sec.questions.forEach((_,qi)=>{
+      const a=state.answers[si][qi];
+      if(sec.type==='multiselect') { if(a&&a.length>0) n++; }
+      else if(a!==null) n++;
+    });
+  });
+  return n;
+}
+
+function updateProgress(){
+  const ans=countAnswered();
+  document.getElementById('progress-bar').style.width=(ans/TOTAL_QUESTIONS*100)+'%';
+  document.getElementById('prog-pct').textContent=`${ans} / ${TOTAL_QUESTIONS}`;
+  document.getElementById('prog-label').textContent=`Bloque ${state.current+1} de ${ACTIVE_SECTIONS.length}`;
+}
+
+function updateTabs(){
+  ACTIVE_SECTIONS.forEach((sec,i)=>{
+    const tab=document.getElementById(`tab-${i}`);
+    if(!tab) return;
+    tab.textContent = `${sec.icon} ${sec.title.split(' ')[0]}`;
+    tab.className='stab';
+    if(i===state.current){
+      tab.classList.add('active');
+      tab.style.background=CLRS[sec.color].tab;
+      tab.style.borderColor=CLRS[sec.color].tab;
+    } else {
+      tab.style.background=''; tab.style.borderColor='';
+      const a=state.answers[i];
+      const done = sec.type==='multiselect' ? a.some(x=>x&&x.length>0) : a.some(x=>x!==null);
+      if(done) tab.classList.add('done');
+    }
+  });
+}
+
+function render(){ updateTabs(); updateProgress(); updateNavButtons(); renderSection(state.current); }
+
+function updateNavButtons(){
+  const prev=document.getElementById('btn-prev');
+  const next=document.getElementById('btn-next');
+  const sub=document.getElementById('btn-submit');
+  if(prev) prev.disabled=state.current===0;
+  if(next&&sub){
+    if(state.current===ACTIVE_SECTIONS.length-1){ next.style.display='none'; sub.style.display=''; }
+    else { next.style.display=''; sub.style.display='none'; }
+  }
+}
+
+function renderSection(idx, scrollMode){
+  const sec=ACTIVE_SECTIONS[idx];
+  if(!sec) return;
+  const col=CLRS[sec.color];
+  const main=document.getElementById('main-content');
+  const prevScroll = scrollMode === 'keep' ? window.scrollY : null;
+  let h=`<div class="section-in"><div class="card p-5 mb-5"><div class="flex items-start gap-3"><span class="text-3xl">${sec.icon}</span><div><div class="flex items-center gap-2 mb-1 flex-wrap"><h2 class="text-xl font-bold text-gray-900">${sec.title}</h2><span class="text-xs px-2 py-0.5 rounded-full font-semibold ${col.badge}">${sec.type==='multiple'?'Opcion multiple (1 correcta)':sec.type==='multiselect'?'Seleccion multiple (2+ correctas)':sec.type==='truefalse'?'Verdadero / Falso':'Completar parrafos'}</span></div><p class="text-xs text-ios-second">${sec.desc}</p></div></div></div>`;
+  if(sec.type==='multiple') h+=renderMultiple(sec,idx,col);
+  else if(sec.type==='multiselect') h+=renderMultiSelect(sec,idx,col);
+  else if(sec.type==='truefalse') h+=renderTrueFalse(sec,idx,col);
+  else h+=renderDragDrop(sec,idx,col);
+  h+=`</div>`;
+  main.innerHTML=h;
+  if (prevScroll !== null) {
+    requestAnimationFrame(() => window.scrollTo({top: prevScroll}));
+  } else if (scrollMode !== false) {
+    window.scrollTo({top:0, behavior:'smooth'});
+  }
+  if(sec.type==='dragdrop') initDragDrop(idx);
+}
+
+function renderMultiple(sec,si,col){
+  let h='<div class="space-y-4">';
+  sec.questions.forEach((q,qi)=>{
+    const ans=state.answers[si][qi]; const sub=state.submitted;
+    h+=`<div class="card p-5"><div class="flex gap-3 mb-4"><span class="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 ${col.badge}">${qi+1}</span><p class="text-gray-800 font-medium leading-snug text-sm">${q.text}</p></div><div class="space-y-2">`;
+    q.opts.forEach((opt,oi)=>{
+      let cls='opt p-3 flex items-start gap-3';
+      let circleStyle='width:20px;height:20px;border-radius:99px;border:2px solid #D1D5DB;flex-shrink:0;margin-top:2px';
+      let circleInner='';
+      if(!sub&&ans===oi){ cls+=' sel'; circleStyle='width:20px;height:20px;border-radius:99px;border:2px solid #007AFF;background:#007AFF;flex-shrink:0;margin-top:2px;display:flex;align-items:center;justify-content:center'; circleInner='<span style="width:8px;height:8px;background:#fff;border-radius:99px;display:block"></span>'; }
+      if(sub&&oi===q.correct){ cls+=' ok'; circleStyle='width:20px;height:20px;border-radius:99px;background:#34C759;flex-shrink:0;margin-top:2px;display:flex;align-items:center;justify-content:center'; circleInner='<span style="color:#fff;font-size:11px;font-weight:bold">&#10003;</span>'; }
+      if(sub&&ans===oi&&oi!==q.correct){ cls+=' fail'; circleStyle='width:20px;height:20px;border-radius:99px;background:#FF3B30;flex-shrink:0;margin-top:2px;display:flex;align-items:center;justify-content:center'; circleInner='<span style="color:#fff;font-size:11px;font-weight:bold">&#10007;</span>'; }
+      const icon=`<span class="opt-circle" data-opt-circle="${si}-${qi}-${oi}" style="${circleStyle}">${circleInner}</span>`;
+      h+=`<div class="${cls}" data-opt="${si}-${qi}-${oi}" onclick="${sub?'':'selectSingle('+si+','+qi+','+oi+')'}">${icon}<span class="text-sm text-gray-800">${opt}</span></div>`;
+    });
+    if(sub) h+=`<div class="mt-3 p-3 rounded-xl text-xs leading-relaxed ${ans===q.correct?'bg-green-50 text-green-800':'bg-red-50 text-red-800'}"><span class="font-bold">${ans===q.correct?'&#10003; Correcto':'&#10007; Incorrecto &mdash; la respuesta era: &ldquo;'+q.opts[q.correct]+'&rdquo;'}</span><span class="block mt-1 opacity-80">&#128161; ${q.just}</span></div>`;
+    h+=`</div></div>`;
+  });
+  return h+'</div>';
+}
+
+function selectSingle(si,qi,oi){
+  if(state.submitted) return;
+  state.answers[si][qi]=oi;
+  const q=ACTIVE_SECTIONS[si].questions[qi];
+  q.opts.forEach((_,i)=>{
+    const el=document.querySelector('[data-opt="'+si+'-'+qi+'-'+i+'"]');
+    if(!el) return;
+    const isSel=i===oi;
+    el.className='opt p-3 flex items-start gap-3'+(isSel?' sel':'');
+    const circle=el.querySelector('[data-opt-circle]');
+    if(circle){
+      if(isSel){
+        circle.style.cssText='width:20px;height:20px;border-radius:99px;border:2px solid #007AFF;background:#007AFF;flex-shrink:0;margin-top:2px;display:flex;align-items:center;justify-content:center';
+        circle.innerHTML='<span style="width:8px;height:8px;background:#fff;border-radius:99px;display:block"></span>';
+      } else {
+        circle.style.cssText='width:20px;height:20px;border-radius:99px;border:2px solid #D1D5DB;background:transparent;flex-shrink:0;margin-top:2px';
+        circle.innerHTML='';
+      }
+    }
+  });
+  updateProgress();
+}
+
+function renderMultiSelect(sec,si,col){
+  let h=`<div class="space-y-4"><div class="flex items-center gap-2 px-1"><span class="w-5 h-5 rounded bg-purple-100 flex items-center justify-center text-purple-700 text-xs flex-shrink-0">&#9745;</span><p class="text-xs text-ios-second">Selecciona <strong>todas</strong> las opciones correctas. Solo obtienes el punto si marcas exactamente las correctas.</p></div>`;
+  sec.questions.forEach((q,qi)=>{
+    const sel=state.answers[si][qi]||[]; const sub=state.submitted;
+    const correct=new Set(q.correct);
+    const allOk = sel.length===q.correct.length && q.correct.every(c=>sel.includes(c));
+    h+=`<div class="card p-5"><div class="flex gap-3 mb-4"><span class="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 ${col.badge}">${qi+1}</span><p class="text-gray-800 font-medium leading-snug text-sm">${q.text}</p></div><div class="space-y-2">`;
+    q.opts.forEach((opt,oi)=>{
+      const isSelected=sel.includes(oi);
+      const isCorrect=correct.has(oi);
+      let cls='opt p-3 flex items-start gap-3';
+      let boxCls='cb-box mt-0.5';
+      let boxInner='';
+      if(!sub){
+        if(isSelected){ cls+=' sel'; boxCls+=' checked'; boxInner='<svg width="10" height="8" viewBox="0 0 10 8"><path d="M1 4L3.5 6.5L9 1" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>'; }
+      } else {
+        if(isSelected&&isCorrect)  { cls+=' ok';     boxCls+=' ok-check';     boxInner='<svg width="10" height="8" viewBox="0 0 10 8"><path d="M1 4L3.5 6.5L9 1" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>'; }
+        if(isSelected&&!isCorrect) { cls+=' fail';   boxCls+=' fail-check';   boxInner='<span style="color:white;font-size:10px;font-weight:bold">&#10007;</span>'; }
+        if(!isSelected&&isCorrect) { cls+=' missed'; boxCls+=' missed-check'; boxInner='<span style="color:white;font-size:10px;font-weight:bold">!</span>'; }
+      }
+      h+=`<div class="${cls}" data-mopt="${si}-${qi}-${oi}" onclick="${sub?'':'toggleMulti('+si+','+qi+','+oi+')'}"><span class="opt-cb ${boxCls}" data-cb="${si}-${qi}-${oi}">${boxInner}</span><span class="text-sm text-gray-800">${opt}</span></div>`;
+    });
+    if(sub){
+      h+=`<div class="mt-3 p-3 rounded-xl text-xs leading-relaxed ${allOk?'bg-green-50 text-green-800':'bg-red-50 text-red-800'}"><span class="font-bold">${allOk?'&#10003; Todas las correctas seleccionadas':'&#10007; Seleccion incorrecta o incompleta'}</span><span class="block mt-1 opacity-80">&#128161; ${q.just}</span></div>`;
+    } else {
+      h+=`<p class="text-xs text-ios-second mt-2 pl-1" data-count="${si}-${qi}">Seleccionadas: ${sel.length} de ${q.correct.length} necesarias</p>`;
+    }
+    h+=`</div></div>`;
+  });
+  return h+'</div>';
+}
+
+function toggleMulti(si,qi,oi){
+  if(state.submitted) return;
+  const arr=state.answers[si][qi]||[];
+  const idx=arr.indexOf(oi);
+  if(idx>=0) arr.splice(idx,1); else arr.push(oi);
+  state.answers[si][qi]=arr;
+  const isSel=arr.includes(oi);
+  const el=document.querySelector('[data-mopt="'+si+'-'+qi+'-'+oi+'"]');
+  if(el){
+    el.className='opt p-3 flex items-start gap-3'+(isSel?' sel':'');
+    const cb=el.querySelector('[data-cb]');
+    if(cb){
+      if(isSel){
+        cb.className='opt-cb cb-box checked mt-0.5';
+        cb.innerHTML='<svg width="10" height="8" viewBox="0 0 10 8"><path d="M1 4L3.5 6.5L9 1" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+      } else {
+        cb.className='opt-cb cb-box mt-0.5';
+        cb.innerHTML='';
+      }
+    }
+  }
+  const counter=document.querySelector('[data-count="'+si+'-'+qi+'"]');
+  if(counter){
+    const q=ACTIVE_SECTIONS[si].questions[qi];
+    counter.textContent='Seleccionadas: '+arr.length+' de '+q.correct.length+' necesarias';
+  }
+  updateProgress();
+}
+
+function renderTrueFalse(sec,si,col){
+  let h='<div class="space-y-4">';
+  sec.questions.forEach((q,qi)=>{
+    const ans=state.answers[si][qi]; const sub=state.submitted;
+    let tCls='tf flex-1', fCls='tf flex-1';
+    if(!sub){ if(ans===true) tCls+=' sel-true'; if(ans===false) fCls+=' sel-false'; }
+    else {
+      if(q.correct===true)  tCls+=' ok'; else tCls+=(ans===true?' fail':'');
+      if(q.correct===false) fCls+=' ok'; else fCls+=(ans===false?' fail':'');
+    }
+    h+=`<div class="card p-5"><div class="flex gap-3 mb-4"><span class="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 ${col.badge}">${qi+1}</span><p class="text-gray-800 font-medium leading-snug text-sm">${q.text}</p></div><div class="flex gap-3"><div class="${tCls}" data-tf="${si}-${qi}-true" onclick="${sub?'':'selectTF('+si+','+qi+',true)'}">&#10003; Verdadero</div><div class="${fCls}" data-tf="${si}-${qi}-false" onclick="${sub?'':'selectTF('+si+','+qi+',false)'}">&#10007; Falso</div></div>`;
+    if(sub){ const ok=ans===q.correct;
+      h+=`<div class="mt-3 p-3 rounded-xl text-xs leading-relaxed ${ok?'bg-green-50 text-green-800':'bg-red-50 text-red-800'}"><span class="font-bold">${ok?'&#10003; Correcto':'&#10007; La respuesta es '+(q.correct?'Verdadero':'Falso')}</span><span class="block mt-1 opacity-80">&#128161; ${q.just}</span></div>`;
+    }
+    h+=`</div>`;
+  });
+  return h+'</div>';
+}
+
+function selectTF(si,qi,val){
+  if(state.submitted) return;
+  state.answers[si][qi]=val;
+  const trueEl=document.querySelector('[data-tf="'+si+'-'+qi+'-true"]');
+  const falseEl=document.querySelector('[data-tf="'+si+'-'+qi+'-false"]');
+  if(trueEl) trueEl.className='tf flex-1'+(val===true?' sel-true':'');
+  if(falseEl) falseEl.className='tf flex-1'+(val===false?' sel-false':'');
+  updateProgress();
+}
+
+function renderDragDrop(sec,si,col){
+  const used=state.answers[si].filter(a=>a!==null);
+  const hasActive = !!state.selectedChip;
+  let bank=`<div id="word-bank-sticky" class="card p-4 mb-4" style="position:sticky;top:140px;z-index:30;box-shadow:0 4px 20px rgba(0,0,0,.13);transition:box-shadow .2s ease"><div class="flex items-center justify-between mb-2 gap-2"><p class="text-xs font-semibold text-ios-second uppercase tracking-wide">Banco de palabras</p>${hasActive?`<span class="text-xs text-ios-blue font-semibold animate-pulse">Desplazate y toca el espacio en blanco</span>`:`<span class="text-xs text-ios-second">Toca una palabra para seleccionarla</span>`}</div><div class="flex flex-wrap gap-2">`;
+  sec.bankWords.forEach(w=>{
+    const isUsed   = used.includes(w);
+    const isActive = state.selectedChip===w;
+    let cls='chip';
+    if(isUsed)   cls+=' used';
+    if(isActive) cls+=' active';
+    bank+=`<span class="${cls}" onclick="chipClick(this.dataset.word)" data-word="${w}">${w}</span>`;
+  });
+  bank+=`</div></div>`;
+  let qs='<div class="space-y-4">';
+  sec.questions.forEach((q,qi)=>{
+    const placed=state.answers[si][qi]; const sub=state.submitted;
+    let bCls='blank', bTxt=placed||'toca aqui';
+    if(placed) bCls+=' ready';
+    if(sub&&placed){ bCls=placed===q.correct?'blank ok':'blank fail'; }
+    qs+=`<div class="card p-5"><div class="flex gap-3 mb-3"><span class="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 ${col.badge}">${qi+1}</span><p class="text-xs font-semibold text-ios-second uppercase tracking-wide mt-1.5">Completa el enunciado</p></div><p class="text-gray-800 text-sm leading-relaxed">${q.before}<span class="${bCls}" id="blank-${si}-${qi}" onclick="blankClick(${si},${qi})">${bTxt}</span>${q.after}</p>`;
+    if(sub&&placed){ const ok=placed===q.correct;
+      qs+=`<div class="mt-3 p-3 rounded-xl text-xs leading-relaxed ${ok?'bg-green-50 text-green-800':'bg-red-50 text-red-800'}"><span class="font-bold">${ok?'&#10003; Correcto':'&#10007; La palabra correcta es: '+q.correct}</span><span class="block mt-1 opacity-80">&#128161; ${q.just}</span></div>`;
+    }
+    qs+=`</div>`;
+  });
+  return bank+qs+'</div>';
+}
+
+function chipClick(w){
+  if(state.submitted) return;
+  const used=state.answers[state.current].filter(a=>a!==null);
+  if(used.includes(w)&&state.selectedChip!==w) return;
+  state.selectedChip=state.selectedChip===w?null:w;
+  renderSection(state.current,'keep');
+}
+
+function blankClick(si,qi){
+  if(state.submitted||!state.selectedChip) return;
+  state.answers[si][qi]=state.selectedChip;
+  const blank=document.getElementById(`blank-${si}-${qi}`);
+  if(blank){
+    blank.textContent=state.selectedChip;
+    blank.classList.add('ready');
+  }
+  state.selectedChip=null;
+  updateProgress();
+  renderSection(state.current,'keep');
+}
+
+function initDragDrop(idx){}
+
+function goSection(idx){ if(idx<0||idx>=ACTIVE_SECTIONS.length) return; state.current=idx; state.selectedChip=null; render(); }
+function prevSection(){ if(state.current>0){ state.current--; state.selectedChip=null; render(); } }
+function nextSection(){ if(state.current<ACTIVE_SECTIONS.length-1){ state.current++; state.selectedChip=null; render(); } }
+
+function confirmSubmit(auto=false){
+  if(!auto){
+    showConfirmModal('¿Deseas entregar la actividad?', 'No podrás volver atrás. Las preguntas sin responder quedarán en blanco.', function(){
+      doSubmit();
+    });
+    return;
+  }
+  doSubmit();
+}
+
+function showConfirmModal(title, message, onConfirm){
+  // Eliminar modal previo si existe
+  var prev = document.getElementById('confirm-modal');
+  if(prev) prev.remove();
+
+  var modal = document.createElement('div');
+  modal.id = 'confirm-modal';
+  modal.style.cssText = 'position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.45);display:flex;align-items:center;justify-content:center;padding:24px;backdrop-filter:blur(4px)';
+  modal.innerHTML = '<div style="background:#fff;border-radius:20px;padding:28px 24px;max-width:340px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.25);text-align:center">' +
+    '<div style="font-size:2rem;margin-bottom:12px">📋</div>' +
+    '<p style="font-weight:700;font-size:1rem;color:#1a1a1a;margin:0 0 8px">' + title + '</p>' +
+    '<p style="font-size:.85rem;color:#6C6C70;line-height:1.5;margin:0 0 24px">' + message + '</p>' +
+    '<div style="display:flex;gap:10px">' +
+      '<button id="modal-cancel" style="flex:1;padding:13px;border-radius:13px;border:2px solid #E5E5EA;background:#fff;font-weight:600;font-size:.9rem;color:#6C6C70;cursor:pointer">Cancelar</button>' +
+      '<button id="modal-confirm" style="flex:1;padding:13px;border-radius:13px;border:none;background:#34C759;color:#fff;font-weight:700;font-size:.9rem;cursor:pointer;box-shadow:0 4px 14px rgba(52,199,89,.35)">Entregar</button>' +
+    '</div></div>';
+
+  document.body.appendChild(modal);
+
+  document.getElementById('modal-cancel').onclick = function(){
+    modal.remove();
+  };
+  document.getElementById('modal-confirm').onclick = function(){
+    modal.remove();
+    onConfirm();
+  };
+  // Cerrar al tocar el fondo
+  modal.addEventListener('click', function(e){
+    if(e.target === modal) modal.remove();
+  });
+}
+
+function doSubmit(){
+  stopIntegrityMonitor();
+  clearInterval(state.timerInterval);
+  state.submitted=true;
+  saveLockRecord();
+  computeAndRenderResults();
+}
+
+function saveLockRecord(){
+  const email = state.student && state.student.email;
+  const key = normalizeEmail(email);
+  if(!key) return;
+  const tsIso = new Date().toISOString();
+  const code = generateSubmissionCode(email, tsIso);
+  state.veriCode = code;
+  const record = {
+    student: state.student,
+    activeSections: ACTIVE_SECTIONS,
+    answers: state.answers,
+    code: code,
+    annulled: !!state.annulled,
+    annulReason: state.annulReason || null,
+    submittedAtIso: tsIso,
+    submittedAtDisplay: new Date().toLocaleString('es-BO', {dateStyle:'long', timeStyle:'short'})
+  };
+  const locks = getLocks();
+  locks[key] = record;
+  saveLocks(locks);
+}
+
+function computeAndRenderResults(){
+  const rawCorrect = ACTIVE_SECTIONS.reduce((sum, sec, si) => {
+    return sum + sec.questions.filter((q, qi) => {
+      const ans = state.answers[si][qi];
+      if (sec.type === 'multiselect') {
+        const ansSet = new Set(ans);
+        const corrSet = new Set(q.correct);
+        return ansSet.size === corrSet.size && [...corrSet].every(c => ansSet.has(c));
+      } else if (sec.type === 'truefalse' || sec.type === 'multiple' || sec.type === 'dragdrop') {
+        return ans === q.correct;
+      }
+      return false;
+    }).length;
+  }, 0);
+
+  const total = ACTIVE_SECTIONS.reduce((sum, s) => sum + s.questions.length, 0);
+  const correct = state.annulled ? 0 : rawCorrect;
+  const pct = state.annulled ? 0 : Math.round((correct / total) * 100);
+
+  const annulBanner = document.getElementById('annul-banner');
+  if(annulBanner){
+    if(state.annulled){
+      annulBanner.style.display = '';
+      annulBanner.innerHTML = '<p class="font-bold text-red-800 text-sm mb-1 flex items-center gap-1.5"><span class="text-lg">&#9888;&#65039;</span> Examen anulado</p><p class="text-xs text-red-700 leading-relaxed">' + (state.annulReason || 'Se detecto un cambio de pantalla durante el examen.') + ' Segun la politica del examen, esto anula la evaluacion y tu nota queda registrada como 0. Esta decision es definitiva y no se puede repetir el examen.</p>';
+    } else {
+      annulBanner.style.display = 'none';
+      annulBanner.innerHTML = '';
+    }
+  }
+
+  const ring = document.getElementById('score-ring');
+  if(ring){ ring.style.borderColor = state.annulled ? '#FF3B30' : (pct>=80?'#34C759':pct>=60?'#FF9500':'#FF3B30'); }
+  document.getElementById('score-num').textContent = correct;
+  document.getElementById('score-label').textContent = state.annulled ? 'ANULADO — 0%' : (pct + '% — ' + (pct>=80?'Excelente':pct>=60?'Bueno':pct>=40?'Regular':'Necesita refuerzo'));
+  document.getElementById('score-sub').textContent = state.annulled ? ('Examen anulado por cambio de pantalla') : (correct + ' de ' + total + ' respuestas correctas');
+  document.getElementById('res-nombre').textContent = state.student.nombre;
+  document.getElementById('res-codigo').textContent = state.student.codigo;
+  document.getElementById('res-grade').textContent = state.annulled ? 'Anulado (0%)' : (pct + '% (' + (pct>=80?'Avanzado':pct>=60?'Intermedio':pct>=40?'Basico':'Inicial') + ')');
+  const veriEl = document.getElementById('res-veriCode');
+  if(veriEl) veriEl.textContent = state.veriCode || '--';
+
+  let breakdown = '';
+  ACTIVE_SECTIONS.forEach((sec, si) => {
+    const sectionCorrect = sec.questions.filter((q, qi) => {
+      const ans = state.answers[si][qi];
+      if (sec.type === 'multiselect') {
+        const ansSet = new Set(ans);
+        const corrSet = new Set(q.correct);
+        return ansSet.size === corrSet.size && [...corrSet].every(c => ansSet.has(c));
+      } else if (sec.type === 'truefalse' || sec.type === 'multiple' || sec.type === 'dragdrop') {
+        return ans === q.correct;
+      }
+    }).length;
+    const pctSec = Math.round((sectionCorrect / sec.questions.length) * 100);
+    breakdown += '<div class="p-3 rounded-lg bg-gray-50 flex justify-between items-center"><span><strong>' + sec.icon + ' ' + sec.title + '</strong><br><span class="text-xs text-ios-second">' + sectionCorrect + '/' + sec.questions.length + ' correctas</span></span><span class="text-lg font-bold ' + (pctSec>=75?'text-green-600':pctSec>=50?'text-orange-600':'text-red-600') + '">' + pctSec + '%</span></div>';
+  });
+  if(state.annulled){
+    breakdown = '<p class="text-xs text-ios-second">El desglose por bloque no aplica: la nota final es 0 por anulacion. El detalle completo de lo respondido antes de la anulacion queda disponible en el PDF, para fines de revision.</p>';
+  }
+  document.getElementById('breakdown').innerHTML = breakdown;
+
+  const insights = generateInsights(ACTIVE_SECTIONS, state.answers);
+  let insightsHtml = '';
+  insights.forEach((insight) => {
+    insightsHtml += '<div class="insight-card ' + insight.level + '"><div class="ic-title">' + insight.topic + '</div><div class="ic-text">' + insight.recommendation + '</div></div>';
+  });
+  document.getElementById('insights-container').innerHTML = state.annulled ? '' : (insightsHtml || '<p class="text-ios-second text-xs">Analisis en progreso...</p>');
+
+  document.getElementById('app-shell').style.display = 'none';
+  document.getElementById('results-overlay').style.display = '';
+  window.scrollTo({top:0});
+}
+
+function generateInsights(sections, answers) {
+  const insights = [];
+  const scoreBySection = sections.map((sec, si) => {
+    const correct = sec.questions.filter((q, qi) => {
+      const ans = answers[si][qi];
+      if (sec.type === 'multiselect') {
+        const ansSet = new Set(ans);
+        const corrSet = new Set(q.correct);
+        return ansSet.size === corrSet.size && [...corrSet].every(c => ansSet.has(c));
+      } else {
+        return ans === q.correct;
+      }
+    }).length;
+    return { section: sec.title, icon: sec.icon, score: (correct / sec.questions.length) * 100 };
+  });
+
+  scoreBySection.sort((a, b) => a.score - b.score);
+  scoreBySection.slice(0, 2).forEach(item => {
+    insights.push({ level: 'high', topic: item.icon + ' ' + item.section, recommendation: 'Area de refuerzo prioritario. Revisar el material del bloque correspondiente y practicar con ejercicios adicionales antes de continuar con el curso.' });
+  });
+  scoreBySection.slice(2, 4).forEach(item => {
+    insights.push({ level: 'medium', topic: item.icon + ' ' + item.section, recommendation: 'Area de mejora. Se recomienda revisar los conceptos clave y reforzar con la bibliografia del curso.' });
+  });
+  scoreBySection.slice(4).forEach(item => {
+    insights.push({ level: 'low', topic: item.icon + ' ' + item.section, recommendation: 'Buen dominio de este tema. Mantener el nivel y profundizar con los casos practicos del bloque.' });
+  });
+  return insights;
+}
+
+function buildDetailedFeedbackHTML() {
+  let html = '<div style="margin-top:40px;border-top:3px solid #007AFF;padding-top:30px">';
+  html += '<h2 style="font-size:20px;font-weight:700;color:#007AFF;margin-bottom:6px">Retroalimentacion Detallada por Pregunta</h2>';
+  html += '<p style="font-size:12px;color:#666;margin-bottom:24px">Para cada pregunta: tu respuesta, la respuesta correcta y la justificacion de todas las opciones.</p>';
+
+  ACTIVE_SECTIONS.forEach((sec, si) => {
+    html += '<div style="margin-bottom:28px">';
+    html += '<div style="background:#007AFF;color:#fff;padding:10px 16px;border-radius:10px;font-weight:700;font-size:14px;margin-bottom:14px">' + sec.icon + ' ' + sec.title + '</div>';
+
+    sec.questions.forEach((q, qi) => {
+      const ans = state.answers[si][qi];
+      let isCorrect = false;
+      if (sec.type === 'multiselect') {
+        const ansSet = new Set(ans);
+        const corrSet = new Set(q.correct);
+        isCorrect = ansSet.size === corrSet.size && [...corrSet].every(c => ansSet.has(c));
+      } else {
+        isCorrect = ans === q.correct;
+      }
+
+      const bc = isCorrect ? '#34C759' : '#FF3B30';
+      const bg = isCorrect ? '#F0FFF4' : '#FFF5F5';
+      html += '<div style="border:1px solid #e5e5ea;border-left:5px solid ' + bc + ';border-radius:10px;padding:14px;margin-bottom:12px;background:' + bg + ';page-break-inside:avoid">';
+      html += '<div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">';
+      html += '<span style="background:#007AFF;color:#fff;width:24px;height:24px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:bold;flex-shrink:0">' + (qi+1) + '</span>';
+      html += '<span style="font-weight:700;font-size:12px;color:' + (isCorrect?'#1A7A34':'#C0392B') + '">' + (isCorrect?'CORRECTA':'INCORRECTA') + '</span>';
+      html += '</div>';
+
+      if (sec.type === 'dragdrop') {
+        html += '<p style="font-size:12px;color:#333;margin-bottom:10px;line-height:1.6"><strong>Enunciado:</strong> ' + q.before + '[___]' + q.after + '</p>';
+      } else {
+        html += '<p style="font-size:12px;color:#333;margin-bottom:10px;line-height:1.6;font-weight:600">' + q.text + '</p>';
+      }
+
+      html += '<div style="margin-bottom:10px">';
+      if (sec.type === 'multiple') {
+        q.opts.forEach((opt, oi) => {
+          const isMine = ans === oi, isRight = oi === q.correct;
+          let ob='#f5f5f5',obb='#ddd',olc='#888',ol='';
+          if(isMine&&isRight){ob='#E8F8EE';obb='#34C759';olc='#1A7A34';ol='Tu respuesta — CORRECTA';}
+          else if(isMine&&!isRight){ob='#FFF0EE';obb='#FF3B30';olc='#C0392B';ol='Tu respuesta — INCORRECTA';}
+          else if(!isMine&&isRight){ob='#FFF5E6';obb='#FF9500';olc='#c07000';ol='Respuesta correcta (no seleccionada)';}
+          html += '<div style="background:'+ob+';border:1px solid '+obb+';border-radius:6px;padding:7px 10px;margin-bottom:5px">';
+          if(ol) html += '<div style="font-size:10px;font-weight:700;color:'+olc+';margin-bottom:2px">'+ol+'</div>';
+          html += '<div style="font-size:11px;color:#333">'+opt+'</div></div>';
+        });
+      } else if (sec.type === 'multiselect') {
+        const cs = new Set(q.correct);
+        q.opts.forEach((opt, oi) => {
+          const isSel=(ans||[]).includes(oi), isRight=cs.has(oi);
+          let ob='#f9f9f9',obb='#e5e5ea',olc='#aaa',ol='';
+          if(isSel&&isRight){ob='#E8F8EE';obb='#34C759';olc='#1A7A34';ol='Seleccionada — CORRECTA';}
+          if(isSel&&!isRight){ob='#FFF0EE';obb='#FF3B30';olc='#C0392B';ol='Seleccionada — INCORRECTA (no debia marcarse)';}
+          if(!isSel&&isRight){ob='#FFF5E6';obb='#FF9500';olc='#c07000';ol='No seleccionada — DEBIA MARCARSE';}
+          if(!isSel&&!isRight){ol='No seleccionada — correcto omitirla';}
+          html += '<div style="background:'+ob+';border:1px solid '+obb+';border-radius:6px;padding:7px 10px;margin-bottom:5px">';
+          if(ol) html += '<div style="font-size:10px;font-weight:700;color:'+olc+';margin-bottom:2px">'+ol+'</div>';
+          html += '<div style="font-size:11px;color:#333">'+opt+'</div></div>';
+        });
+      } else if (sec.type === 'truefalse') {
+        [{val:true,lbl:'Verdadero'},{val:false,lbl:'Falso'}].forEach(ch => {
+          const isMine=ans===ch.val, isRight=q.correct===ch.val;
+          let ob='#f5f5f5',obb='#ddd',olc='#888',ol='';
+          if(isMine&&isRight){ob='#E8F8EE';obb='#34C759';olc='#1A7A34';ol='Tu respuesta — CORRECTA';}
+          else if(isMine&&!isRight){ob='#FFF0EE';obb='#FF3B30';olc='#C0392B';ol='Tu respuesta — INCORRECTA';}
+          else if(!isMine&&isRight){ob='#FFF5E6';obb='#FF9500';olc='#c07000';ol='Respuesta correcta';}
+          html += '<div style="background:'+ob+';border:1px solid '+obb+';border-radius:6px;padding:7px 10px;margin-bottom:5px">';
+          if(ol) html += '<div style="font-size:10px;font-weight:700;color:'+olc+';margin-bottom:2px">'+ol+'</div>';
+          html += '<div style="font-size:11px;color:#333">'+ch.lbl+'</div></div>';
+        });
+      } else if (sec.type === 'dragdrop') {
+        const sa=ans||'(sin respuesta)', ok=ans===q.correct;
+        html += '<div style="background:'+(ok?'#E8F8EE':'#FFF0EE')+';border:1px solid '+(ok?'#34C759':'#FF3B30')+';border-radius:6px;padding:7px 10px;margin-bottom:5px">';
+        html += '<div style="font-size:10px;font-weight:700;color:'+(ok?'#1A7A34':'#C0392B')+';margin-bottom:2px">'+(ok?'Tu respuesta — CORRECTA':'Tu respuesta — INCORRECTA')+'</div>';
+        html += '<div style="font-size:11px;color:#333">Respondiste: <strong>'+sa+'</strong></div></div>';
+        if(!ok){
+          html += '<div style="background:#FFF5E6;border:1px solid #FF9500;border-radius:6px;padding:7px 10px;margin-bottom:5px">';
+          html += '<div style="font-size:10px;font-weight:700;color:#c07000;margin-bottom:2px">Respuesta correcta</div>';
+          html += '<div style="font-size:11px;color:#333"><strong>'+q.correct+'</strong></div></div>';
+        }
+      }
+      html += '</div>';
+      html += '<div style="background:#F0F4FF;border-left:4px solid #007AFF;border-radius:0 8px 8px 0;padding:10px 12px;font-size:11px;color:#333;line-height:1.7">';
+      html += '<strong style="color:#007AFF">Retroalimentacion:</strong> ' + q.just;
+      html += '</div>';
+      html += '</div>';
+    });
+    html += '</div>';
+  });
+  html += '</div>';
+  return html;
+}
+
+function downloadPDF() {
+  const correctBySection = ACTIVE_SECTIONS.map((sec, si) => {
+    const c = sec.questions.filter((q, qi) => {
+      const ans = state.answers[si][qi];
+      if (sec.type === 'multiselect') {
+        const ansSet = new Set(ans); const corrSet = new Set(q.correct);
+        return ansSet.size === corrSet.size && [...corrSet].every(c => ansSet.has(c));
+      } else { return ans === q.correct; }
+    }).length;
+    return Math.round((c / sec.questions.length) * 100);
+  });
+
+  const scoreNum = document.getElementById('score-num').textContent;
+  const scoreLabel = document.getElementById('score-label').textContent;
+  const insightsData = generateInsights(ACTIVE_SECTIONS, state.answers);
+
+  let html = '<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><title>Retroalimentacion Examen Parcial Avanzado - Inteligencia de Negocios - '+(state.veriCode||'')+'</title>';
+  html += '<style>*{box-sizing:border-box}body{font-family:Arial,sans-serif;padding:24px;background:#f5f5f5;color:#333;margin:0}';
+  html += '.w{max-width:920px;margin:0 auto;background:#fff;border-radius:12px;padding:28px;box-shadow:0 2px 10px rgba(0,0,0,.1)}';
+  html += '.hd{text-align:center;margin-bottom:24px;border-bottom:3px solid #007AFF;padding-bottom:18px}';
+  html += '.hd h1{margin:0 0 6px;color:#1a1a1a;font-size:24px}.hd .sub{color:#007AFF;font-size:15px;font-weight:700}.hd .auth{color:#666;font-size:12px;margin-top:4px}';
+  html += '.vc{text-align:center;margin:0 0 18px;padding:10px;background:#FFF5E6;border:2px dashed #FF9500;border-radius:10px;font-size:13px;color:#8a5300}';
+  html += '.ig{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:18px 0}';
+  html += '.ib{padding:11px 14px;background:#f9f9fb;border-radius:8px;border-left:3px solid #007AFF}';
+  html += '.ib b{color:#007AFF;display:block;font-size:10px;text-transform:uppercase;letter-spacing:.5px;margin-bottom:3px}';
+  html += '.ib span{font-size:13px;font-weight:600;color:#1a1a1a}';
+  html += '.sc{text-align:center;margin:22px 0;padding:22px;background:linear-gradient(135deg,#007AFF,#005ACC);border-radius:14px;color:#fff}';
+  html += '.sn{font-size:50px;font-weight:900;margin:6px 0;line-height:1}.sl{font-size:14px;font-weight:600;opacity:.9}';
+  html += '.st{font-size:16px;font-weight:700;color:#333;margin:22px 0 10px;padding-bottom:5px;border-bottom:2px solid #E5E5EA}';
+  html += '.cb{display:grid;grid-template-columns:repeat(6,1fr);gap:7px;margin:14px 0}';
+  html += '.bi{display:flex;flex-direction:column;align-items:center}';
+  html += '.ba{width:100%;height:90px;background:#E5E5EA;border-radius:5px 5px 0 0;position:relative}';
+  html += '.bf{background:linear-gradient(180deg,#007AFF,#004D99);width:100%;border-radius:5px 5px 0 0;position:absolute;bottom:0;left:0}';
+  html += '.bp{position:absolute;bottom:5px;width:100%;text-align:center;color:#1a1a1a;font-weight:700;font-size:10px}';
+  html += '.bl{font-size:9px;margin-top:5px;text-align:center;line-height:1.3;color:#333}';
+  html += '.ig2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:10px 0}';
+  html += '.ins{padding:10px;border-left:4px solid;border-radius:5px}';
+  html += '.ins.high{border-color:#FF3B30;background:#FFF0EE}.ins.medium{border-color:#FF9500;background:#FFF5E6}.ins.low{border-color:#34C759;background:#E8F8EE}';
+  html += '.it{font-weight:700;font-size:11px;margin-bottom:3px}';
+  html += '.ins.high .it{color:#C0392B}.ins.medium .it{color:#C67000}.ins.low .it{color:#1A7A34}';
+  html += '.ix{font-size:10px;line-height:1.4}';
+  html += '.ins.high .ix{color:#6D2826}.ins.medium .ix{color:#6B3F00}.ins.low .ix{color:#0D5722}';
+  html += '.ft{text-align:center;margin-top:24px;padding-top:16px;border-top:1px solid #E5E5EA;font-size:11px;color:#888}';
+  html += '.va{margin:0 0 18px;padding:14px;background:#FFF0EE;border:2px solid #FF3B30;border-radius:10px;color:#8a1f1f}';
+  html += '.va b{display:block;font-size:14px;margin-bottom:4px}.va span{font-size:12px;line-height:1.5}';
+  html += '@media print{body{background:#fff;padding:8px}.w{box-shadow:none;padding:16px}}</style>';
+  html += '</head><body onload="setTimeout(function(){window.print();},800);"><div class="w">';
+  html += '<div class="hd"><img src="'+LOGO_DATA_URI+'" alt="Logo UPDS" style="width:56px;height:56px;object-fit:contain;margin:0 auto 10px;display:block"/><h1>Retroalimentacion &mdash; Examen Parcial Avanzado</h1><div class="sub">Inteligencia de Negocios (INV-0170) &middot; UPDS 2026</div><div class="auth">Universidad Privada Domingo Savio · Ingeniería de Sistemas</div></div>';
+  if(state.annulled){
+    html += '<div class="va"><b>&#9888;&#65039; EXAMEN ANULADO</b><span>'+(state.annulReason||'Se detecto un cambio de pantalla durante el examen.')+' La nota final registrada es 0. El detalle de las respuestas se incluye a continuacion unicamente para fines de revision.</span></div>';
+  }
+  html += '<div class="vc">Codigo de verificacion: <strong>'+(state.veriCode||'SIN-CODIGO')+'</strong> &mdash; sube este PDF, tal cual, a Moodle. Un PDF sin este codigo no sera calificado.</div>';
+  html += '<div class="ig"><div class="ib"><b>Estudiante</b><span>'+state.student.nombre+'</span></div>';
+  html += '<div class="ib"><b>Codigo</b><span>'+state.student.codigo+'</span></div>';
+  html += '<div class="ib"><b>Correo</b><span>'+state.student.email+'</span></div>';
+  html += '<div class="ib"><b>Fecha</b><span>'+new Date().toLocaleString('es-BO',{dateStyle:'long',timeStyle:'short'})+'</span></div></div>';
+  const pctNum = Math.round((parseInt(scoreNum) / TOTAL_QUESTIONS) * 100);
+  const nivelNum = pctNum>=80?'Avanzado':pctNum>=60?'Intermedio':pctNum>=40?'Basico':'Inicial';
+  const calidadNum = (scoreLabel.split('—')[1] || '').trim();
+  html += '<div class="sc" style="'+(state.annulled?'background:linear-gradient(135deg,#FF3B30,#B71C1C)':'')+'"><div class="sl">'+(state.annulled?'Examen Anulado':'Resultado del Examen Parcial Avanzado')+'</div><div class="sn">'+pctNum+'%</div><div class="sl" style="font-size:13px;margin-top:4px">'+(state.annulled?'0 de '+TOTAL_QUESTIONS+' preguntas contabilizadas (anulado)':scoreNum+' de '+TOTAL_QUESTIONS+' preguntas correctas')+'</div><div class="sl" style="font-size:15px;margin-top:5px">'+(state.annulled?'Nota final: 0':(calidadNum+' &middot; Nivel de dominio: '+nivelNum))+'</div></div>';
+  if(!state.annulled){
+  html += '<div class="st">Desempeno por Bloque</div><div class="cb">';
+  correctBySection.forEach((pct, i) => {
+    const h = Math.max(pct, 3);
+    html += '<div class="bi"><div class="ba"><div class="bf" style="height:'+h+'%"></div><span class="bp">'+pct+'%</span></div>';
+    html += '<div class="bl">'+ACTIVE_SECTIONS[i].icon+'<br>'+ACTIVE_SECTIONS[i].title.split(' ').slice(0,2).join(' ')+'</div></div>';
+  });
+  html += '</div>';
+  }
+  html += '<div class="st">Analisis de Resultados</div><div class="ig2">';
+  insightsData.forEach(ins => {
+    html += '<div class="ins '+ins.level+'"><div class="it">'+ins.topic+'</div><div class="ix">'+ins.recommendation+'</div></div>';
+  });
+  html += '</div>';
+  html += buildDetailedFeedbackHTML();
+  html += '<div class="ft"><p>Documento generado automaticamente al entregar la evaluacion. Codigo de verificacion: '+(state.veriCode||'SIN-CODIGO')+'</p>';
+  html += '<p>Universidad Privada Domingo Savio · Ingeniería de Sistemas &mdash; Inteligencia de Negocios (INV-0170) &mdash; UPDS 2026</p></div>';
+  html += '</div></body></html>';
+
+  const blob = new Blob([html], {type:'text/html;charset=utf-8'});
+  const link = document.createElement('a');
+  link.href = URL.createObjectURL(blob);
+  link.download = 'Retroalimentacion-INV0170-Parcial-' + state.student.codigo + '-' + (state.veriCode||'') + '.html';
+  link.click();
+}
+</script>
+
+</body>
+</html>
